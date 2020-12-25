@@ -3,9 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/peterP1998/CostManagementSystem/models"
+	"github.com/peterP1998/CostManagementSystem/db"
 	"log"
 	"net/http"
-	//"fmt"
 	"time"
 	"github.com/dgrijalva/jwt-go"
 )
@@ -27,22 +27,14 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := models.CreateDatabase()
+	db, err := db.CreateDatabase()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	res, err := db.Query("SELECT * FROM User where username=?",creds.Username)
-	if err != nil {
-		panic(err.Error())
-	}
 	var user models.User
-	count := 0
-    for res.Next() { 
-	   res.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
-       count += 1 
-	}
-	if count!=1{
+	err =db.QueryRow("SELECT * FROM User where username=?",creds.Username).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
+	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -72,4 +64,25 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		Value:   tokenString,
 		Expires: expirationTime,
 	})
+}
+func Logout(w http.ResponseWriter, r *http.Request){
+	c := http.Cookie{
+		Name:   "token",
+		MaxAge: -1}
+	http.SetCookie(w, &c)
+
+	w.Write([]byte("Old cookie deleted. Logged out!\n"))
+}
+func ParseToken(tokenString string) (string,bool,error){
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte("my_secret_key"),nil
+	})
+	if err!=nil{
+		return "",false,err
+	}
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		return claims.Username,claims.Admin,nil
+	} else {
+		return "",false,err
+	}
 }

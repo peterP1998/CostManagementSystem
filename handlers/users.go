@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/peterP1998/CostManagementSystem/models"
+	"github.com/peterP1998/CostManagementSystem/db"
 	"log"
 	"net/http"
 	//"fmt"
@@ -11,7 +12,7 @@ import (
 )
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
-	_, err := r.Cookie("token")
+	toekn, err := r.Cookie("token")
 	if err != nil {
 		if err == http.ErrNoCookie {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -20,8 +21,14 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	tknStr := toekn.Value
+	_,admin,err:=ParseToken(tknStr)
+	if admin ==false{
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	db, err := models.CreateDatabase()
+	db, err := db.CreateDatabase()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,25 +54,16 @@ func GetUser(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	db, err := models.CreateDatabase()
+	db, err := db.CreateDatabase()
 	if err != nil {
 		log.Fatal(err)
 	}
-	res, err :=db.Query("select * from User where id=?;",userId)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-	defer res.Close()
 	var user models.User
-	count := 0
-    for res.Next() { 
-	   res.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
-       count += 1 
-	}
-	if count!=1{
+	err =db.QueryRow("select * from User where id=?;",userId).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
+	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	defer db.Close()
 	json.NewEncoder(w).Encode(user)
 }

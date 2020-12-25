@@ -11,6 +11,15 @@ import (
 )
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
+	_, err := r.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	db, err := models.CreateDatabase()
 	if err != nil {

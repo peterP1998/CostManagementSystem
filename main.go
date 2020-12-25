@@ -15,8 +15,12 @@ func main() {
 	router.HandleFunc("/login", handlers.Signin).Methods("GET")
 	router.HandleFunc("/logout", handlers.Logout).Methods("POST")
 	router.HandleFunc("/user", handlers.GetUsers).Methods("GET")
+	router.HandleFunc("/user", handlers.CreateUser).Methods("PUT")
+	router.HandleFunc("/user/{id:[0-9]+}", handlers.DeleteUser).Methods("DELETE")
+	router.HandleFunc("/user/{id:[0-9]+}", handlers.GetUser).Methods("GET")
 	router.HandleFunc("/user/expenses", handlers.GetExpenesesForUser).Methods("GET")
 	router.HandleFunc("/user/expenses", handlers.AddExpenseForUser).Methods("PUT")
-	router.HandleFunc("/user/{id:[0-9]+}", handlers.GetUser).Methods("GET")
+	router.HandleFunc("/user/incomes", handlers.GetIncomesForUser).Methods("GET")
+	router.HandleFunc("/user/incomes", handlers.AddIncomeForUser).Methods("PUT")
 	http.ListenAndServe(":8000", router)
 }

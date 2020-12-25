@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"fmt"
+	"github.com/peterP1998/CostManagementSystem/service"
 )
 
 func GetExpenesesForUser(w http.ResponseWriter, r *http.Request){
@@ -20,7 +21,7 @@ func GetExpenesesForUser(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	tknStr := toekn.Value
-	username,_,err:=ParseToken(tknStr)
+	username,_,err:=service.ParseToken(tknStr)
 	fmt.Println(username)
 	if err!=nil{
 		w.WriteHeader(http.StatusInternalServerError)
@@ -55,7 +56,7 @@ func AddExpenseForUser(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	tknStr := toekn.Value
-	username,_,err:=ParseToken(tknStr)
+	username,_,err:=service.ParseToken(tknStr)
 	var user models.User
 	db, err := db.CreateDatabase()
 	if err != nil {
@@ -73,4 +74,5 @@ func AddExpenseForUser(w http.ResponseWriter, r *http.Request){
 		log.Fatal(err)
 		return
 	}
+	w.WriteHeader(http.StatusCreated)
 }

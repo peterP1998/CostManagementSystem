@@ -1,69 +1,77 @@
 package handlers
 
 import (
-	"encoding/json"
-	"github.com/peterP1998/CostManagementSystem/models"
 	"github.com/peterP1998/CostManagementSystem/db"
-	"log"
+	"github.com/peterP1998/CostManagementSystem/service"
 	"net/http"
-	//"fmt"
-	"strings"
-	"strconv"
+	"encoding/json"
 )
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
-	toekn, err := r.Cookie("token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	tknStr := toekn.Value
-	_,admin,err:=ParseToken(tknStr)
-	if admin ==false{
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
 	w.Header().Set("Content-Type", "application/json")
+	token:=service.CheckAuthBeforeOperate(r,w)
+	tknStr := token.Value
+	_,admin,err:=service.ParseToken(tknStr)
+	service.CheckAdminPermission(admin,w)
 	db, err := db.CreateDatabase()
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	defer db.Close()
-	res, err := db.Query("SELECT * FROM User")
+	users,err:=service.SelectAllUsers(db)
 	if err != nil {
-		panic(err.Error())
-	}
-	defer res.Close()
-	users := make([]models.User, 0)
-	for res.Next() {
-		var user models.User
-		res.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
-		users = append(users, user)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	json.NewEncoder(w).Encode(users)
 }
 func GetUser(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
-	p := strings.Split(r.URL.Path, "/user/")
-	userId,err:=strconv.Atoi(p[len(p)-1])
+	service.CheckAuthBeforeOperate(r,w)
+	userId,err:=service.SplitUrl(r)
 	if err!=nil{
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	db, err := db.CreateDatabase()
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
-	var user models.User
-	err =db.QueryRow("select * from User where id=?;",userId).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
+	user,err :=service.SelectUserById(db,userId)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	defer db.Close()
 	json.NewEncoder(w).Encode(user)
+}
+func DeleteUser(w http.ResponseWriter, r *http.Request){
+	token:=service.CheckAuthBeforeOperate(r,w)
+	userId,err:=service.SplitUrl(r)
+	if err!=nil{
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	_,admin,err:=service.ParseToken(token.Value)
+	if admin ==false|| err!=nil{
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	db, err := db.CreateDatabase()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	service.DeleteUserById(db,userId,w)
+}
+func CreateUser(w http.ResponseWriter, r *http.Request){
+	db, err := db.CreateDatabase()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	service.CreateUserDB(db,w,r)
+	w.WriteHeader(http.StatusCreated)
 }

@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/peterP1998/CostManagementSystem/db"
-	"github.com/peterP1998/CostManagementSystem/models"
 	"log"
 	"net/http"
 	"github.com/peterP1998/CostManagementSystem/service"
@@ -14,6 +13,7 @@ func GetIncomesForUser(w http.ResponseWriter, r *http.Request){
 	username,_,err:=service.ParseToken(token.Value)
 	if err!=nil{
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
     db, err := db.CreateDatabase()
 	if err != nil {
@@ -24,12 +24,10 @@ func GetIncomesForUser(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	res,err :=db.Query("select * from Income where userid=?;",user.ID)
-	incomes := make([]models.Income, 0)
-	for res.Next() {
-		var income models.Income
-		res.Scan(&income.ID, &income.Description, &income.Value, &income.Userid)
-		incomes = append(incomes, income)
+	incomes,err := service.SelectAllIncomesForUser(db,user.ID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	json.NewEncoder(w).Encode(incomes)
 }
@@ -38,6 +36,7 @@ func AddIncomeForUser(w http.ResponseWriter, r *http.Request){
 	username,_,err:=service.ParseToken(token.Value)
 	if err!=nil{
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
     db, err := db.CreateDatabase()
 	if err != nil {
@@ -48,11 +47,9 @@ func AddIncomeForUser(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	var income models.Income
-	err = json.NewDecoder(r.Body).Decode(&income)
-	_,err =db.Query("insert into Income(description,value,userid) Values(?,?,?);",income.Description,income.Value,user.ID)
-	if err != nil {
-		log.Fatal(err)
+	err = service.CreateIncome(db,user.ID,r.Body)
+	if err!=nil{
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)

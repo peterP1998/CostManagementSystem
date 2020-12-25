@@ -28,7 +28,6 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-
 	err=service.CreateAndConfigureToken(user,w)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

@@ -3,75 +3,53 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/peterP1998/CostManagementSystem/db"
-	"github.com/peterP1998/CostManagementSystem/models"
 	"log"
 	"net/http"
-	"fmt"
 	"github.com/peterP1998/CostManagementSystem/service"
 )
 
 func GetExpenesesForUser(w http.ResponseWriter, r *http.Request){
-    toekn, err := r.Cookie("token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	tknStr := toekn.Value
-	username,_,err:=service.ParseToken(tknStr)
-	fmt.Println(username)
+	token:=service.CheckAuthBeforeOperate(r,w)
+	username,_,err:=service.ParseToken(token.Value)
 	if err!=nil{
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
     db, err := db.CreateDatabase()
 	if err != nil {
 		log.Fatal(err)
 	}
-	var user models.User
-	err =db.QueryRow("select * from User where username=?;",username).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
+	user,err :=service.SelectUserByName(db,username)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	res,err :=db.Query("select * from Expense where userid=?;",user.ID)
-	expenses := make([]models.Expense, 0)
-	for res.Next() {
-		var expense models.Expense
-		res.Scan(&expense.ID, &expense.Description, &expense.Value, &expense.Userid)
-		expenses = append(expenses, expense)
+	expenses,err :=service.SelectAllExpensesForUser(db,user.ID)
+	if err!=nil{
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	json.NewEncoder(w).Encode(expenses)
 }
 func AddExpenseForUser(w http.ResponseWriter, r *http.Request){
-    toekn, err := r.Cookie("token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		w.WriteHeader(http.StatusBadRequest)
+    token:=service.CheckAuthBeforeOperate(r,w)
+	username,_,err:=service.ParseToken(token.Value)
+	if err!=nil{
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	tknStr := toekn.Value
-	username,_,err:=service.ParseToken(tknStr)
-	var user models.User
-	db, err := db.CreateDatabase()
+    db, err := db.CreateDatabase()
 	if err != nil {
 		log.Fatal(err)
 	}
-	err =db.QueryRow("select * from User where username=?;",username).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
+	user,err :=service.SelectUserByName(db,username)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	var expense models.Expense
-	err = json.NewDecoder(r.Body).Decode(&expense)
-	_,err =db.Query("insert into Expense(description,value,userid) Values(?,?,?);",expense.Description,expense.Value,user.ID)
+	err=service.CreateExpense(db,user.ID,r.Body)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)

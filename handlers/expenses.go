@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/peterP1998/CostManagementSystem/db"
-	"log"
 	"net/http"
 	"github.com/peterP1998/CostManagementSystem/service"
 )
@@ -15,16 +13,12 @@ func GetExpenesesForUser(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-    db, err := db.CreateDatabase()
-	if err != nil {
-		log.Fatal(err)
-	}
-	user,err :=service.SelectUserByName(db,username)
+	user,err :=service.SelectUserByName(username)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	expenses,err :=service.SelectAllExpensesForUser(db,user.ID)
+	expenses,err :=service.SelectAllExpensesForUser(user.ID)
 	if err!=nil{
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -38,16 +32,12 @@ func AddExpenseForUser(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-    db, err := db.CreateDatabase()
-	if err != nil {
-		log.Fatal(err)
-	}
-	user,err :=service.SelectUserByName(db,username)
+	user,err :=service.SelectUserByName(username)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	err=service.CreateExpense(db,user.ID,r.Body)
+	err=service.CreateExpense(user.ID,r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

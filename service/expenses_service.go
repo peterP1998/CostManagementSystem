@@ -1,13 +1,11 @@
 package service
 import(
 	"github.com/peterP1998/CostManagementSystem/models"
-	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"encoding/json"
 	"io"
 )
-func SelectAllExpensesForUser(db *sql.DB,id int)([]models.Expense,error){
-	res,err :=db.Query("select * from Expense where userid=?;",id)
+func SelectAllExpensesForUser(id int)([]models.Expense,error){
+	res,err :=models.DB.Query("select * from Expense where userid=?;",id)
 	if err!=nil{
 		return nil,err
 	}
@@ -19,13 +17,13 @@ func SelectAllExpensesForUser(db *sql.DB,id int)([]models.Expense,error){
 	}
 	return expenses,nil
 }
-func CreateExpense(db *sql.DB,id int,body io.Reader)(error){
+func CreateExpense(id int,body io.Reader)(error){
     var expense models.Expense
 	err := json.NewDecoder(body).Decode(&expense)
 	if err!=nil{
 		return err
 	}
-	_,err =db.Query("insert into Expense(description,value,userid) Values(?,?,?);",expense.Description,expense.Value,id)
+	_,err =models.DB.Query("insert into Expense(description,value,userid) Values(?,?,?);",expense.Description,expense.Value,id)
 	if err!=nil{
 		return err
 	}

@@ -19,16 +19,16 @@ CREATE table Income(
    userid int,
    foreign key (userid) references User(id)
 );
-create table User_Group(
+create table Groupp(
    id int NOT NULL primary key unique auto_increment,
    groupname varchar(255) not null unique,
    moneybynow double not null unique,
    targetmoney double not null
 );
-CREATE TABLE group_user(
+CREATE TABLE user_group(
     user_id int NOT NULL,
     group_id int NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id), 
-    FOREIGN KEY (group_id) REFERENCES User_Group(id),
+    FOREIGN KEY (group_id) REFERENCES Groupp(id),
     UNIQUE (user_id, group_id)
 );

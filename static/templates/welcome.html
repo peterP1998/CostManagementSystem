@@ -1,0 +1,17 @@
+<html>
+	<header id="showcase">
+		<h1>Welcome To Expenses System</h1>
+		<p>Create your account here and track your money!</p>
+		<input type="submit" class="button1" onClick="loginPage()" value="SignIn"/>
+		<input type="submit" class="button2" onClick="signinPage()" value="SignUp"/>
+		<link rel="stylesheet" type="text/css" href="/static/css/welcome.css">
+	  </header>
+</html>
+<script>
+	function loginPage() {
+	  window.location.href="http://localhost:8090/api/login";
+	}
+	function signinPage() {
+	  window.location.href="http://localhost:8090/api/register";
+	}
+</script>

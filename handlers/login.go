@@ -1,30 +1,32 @@
 package handlers
 
 import (
-	"github.com/peterP1998/CostManagementSystem/db"
 	"github.com/peterP1998/CostManagementSystem/service"
-	"log"
 	"net/http"
+	"html/template"
 )
 
 var jwtKey = []byte("my_secret_key")
+func GetForm(w http.ResponseWriter, r *http.Request){
+	t, _ := template.ParseFiles("static/templates/index.html")
+	t.Execute(w, nil)
+}
+func Welcome(w http.ResponseWriter, r *http.Request){
+	t, _ := template.ParseFiles("static/templates/welcome.html")
+	t.Execute(w, nil)
+}
+func GetRegister(w http.ResponseWriter, r *http.Request){
+	t, _ := template.ParseFiles("static/templates/signup.html")
+	t.Execute(w, nil)
+}
 func Signin(w http.ResponseWriter, r *http.Request) {
-	creds,err := service.DecodeJsonCredentials(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	db, err := db.CreateDatabase()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-	user,err :=service.SelectUserByName(db,creds.Username)
+	r.ParseForm()
+	user,err :=service.SelectUserByName(r.FormValue("username"))
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	if  user.Password != creds.Password {
+	if  user.Password != r.FormValue("password") {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -33,6 +35,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	//http.Redirect(w, r, "/api/welcome", http.StatusSeeOther)
 }
 func Logout(w http.ResponseWriter, r *http.Request){
 	c := http.Cookie{
@@ -43,3 +46,11 @@ func Logout(w http.ResponseWriter, r *http.Request){
 	w.Write([]byte("Old cookie deleted. Logged out!\n"))
 }
 
+func push(w http.ResponseWriter, resource string) {
+	pusher, ok := w.(http.Pusher)
+	if ok {
+		if err := pusher.Push(resource, nil); err == nil {
+			return
+		}
+	}
+}

@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/peterP1998/CostManagementSystem/db"
-	"log"
 	"net/http"
 	"github.com/peterP1998/CostManagementSystem/service"
 )
@@ -15,16 +13,12 @@ func GetIncomesForUser(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-    db, err := db.CreateDatabase()
-	if err != nil {
-		log.Fatal(err)
-	}
-	user,err :=service.SelectUserByName(db,username)
+	user,err :=service.SelectUserByName(username)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	incomes,err := service.SelectAllIncomesForUser(db,user.ID)
+	incomes,err := service.SelectAllIncomesForUser(user.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -38,16 +32,12 @@ func AddIncomeForUser(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-    db, err := db.CreateDatabase()
-	if err != nil {
-		log.Fatal(err)
-	}
-	user,err :=service.SelectUserByName(db,username)
+	user,err :=service.SelectUserByName(username)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	err = service.CreateIncome(db,user.ID,r.Body)
+	err = service.CreateIncome(user.ID,r.Body)
 	if err!=nil{
 		w.WriteHeader(http.StatusInternalServerError)
 		return

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/peterP1998/CostManagementSystem/db"
 	"github.com/peterP1998/CostManagementSystem/service"
 	"net/http"
 	"encoding/json"
@@ -13,13 +12,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	tknStr := token.Value
 	_,admin,err:=service.ParseToken(tknStr)
 	service.CheckAdminPermission(admin,w)
-	db, err := db.CreateDatabase()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	defer db.Close()
-	users,err:=service.SelectAllUsers(db)
+	users,err:=service.SelectAllUsers()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -29,27 +22,21 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 func GetUser(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
 	service.CheckAuthBeforeOperate(r,w)
-	userId,err:=service.SplitUrl(r)
+	userId,err:=service.SplitUrlUser(r)
 	if err!=nil{
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	db, err := db.CreateDatabase()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	user,err :=service.SelectUserById(db,userId)
+	user,err :=service.SelectUserById(userId)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	defer db.Close()
 	json.NewEncoder(w).Encode(user)
 }
 func DeleteUser(w http.ResponseWriter, r *http.Request){
 	token:=service.CheckAuthBeforeOperate(r,w)
-	userId,err:=service.SplitUrl(r)
+	userId,err:=service.SplitUrlUser(r)
 	if err!=nil{
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -59,19 +46,10 @@ func DeleteUser(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	db, err := db.CreateDatabase()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	service.DeleteUserById(db,userId,w)
+	service.DeleteUserById(userId,w)
 }
 func CreateUser(w http.ResponseWriter, r *http.Request){
-	db, err := db.CreateDatabase()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	service.CreateUserDB(db,w,r)
-	w.WriteHeader(http.StatusCreated)
+	r.ParseForm()
+	service.CreateUserDB(w,r.FormValue("username"),r.FormValue("email"),r.FormValue("password"))
+	http.Redirect(w, r, "/api/login", http.StatusSeeOther)
 }

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Coming Soon</title>
+    <link rel="stylesheet" href="/static/css/user.css" >
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body>
+ 
+<ul class="navbar">
+
+    <li><a  onClick="incomePage()">Add Income</a></li>
+    <li><a  onClick="expensesPage()">Add Expense</a></li>
+    <li><a onClick="balancePage()">Balance and info</a></li>
+    <li> <a href="/api/logout">Logout</a></li>
+
+</div>
+</ul>
+<div class="content">    
+    <form id="expenses" method="post" action="/api/user/expenses">    
+        <label><b>Description     
+        </b>    
+        </label>    
+        <input type="text" name="description" id="Uname" placeholder="description">    
+        <br><br>    
+        <label><b>Value     
+        </b>    
+        </label>    
+        <input type="number" name="value" id="Pass" placeholder="value">    
+        <br><br>
+        <label><b>Category     
+        </b>    
+        </label>    
+        <input type="text" name="category" id="Pass" placeholder="category">    
+        <br><br>
+        <label><b>Add Expense     
+        </b>         
+        <input type="submit" name="log" id="log" value="Add Expense">       
+        <br><br>     
+    </form>
+
+</body>
+</html>
+<script>
+	function incomePage() {
+	  window.location.href="http://localhost:8090/api/income";
+	}
+	function expensesPage() {
+	  window.location.href="http://localhost:8090/api/expense";
+	}
+    function balancePage() {
+	  window.location.href="http://localhost:8090/api/balance";
+	}
+</script>

@@ -9,9 +9,9 @@
  
 <ul class="navbar">
 
-  <li><a  onClick="incomePage()">Add Icnome</a></li>
-  <li><a onClick="expensePage()">Add Expense</a></li>
- <li><a href="main.html">Balance and info</a></li>
+  <li><a  onClick="incomePage()">Add Income</a></li>
+  <li><a  onClick="expensesPage()">Add Expense</a></li>
+  <li><a onClick="balancePage()">Balance and info</a></li>
   <li> <a href="/api/logout">Logout</a></li>
 
 </ul>
@@ -29,5 +29,8 @@
 	}
 	function expensePage() {
 	  window.location.href="http://localhost:8090/api/expense";
+	}
+  function balancePage() {
+	  window.location.href="http://localhost:8090/api/balance";
 	}
 </script>

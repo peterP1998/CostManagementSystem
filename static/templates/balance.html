@@ -14,26 +14,11 @@
   <li><a onClick="balancePage()">Balance and info</a></li>
   <li> <a href="/api/logout">Logout</a></li>
 
-</div>
 </ul>
 <div class="content">    
-    <form id="incomes" method="post" action="/api/user/incomes">    
-        <label><b>Description     
-        </b>    
-        </label>    
-        <input type="text" name="description" id="Uname" placeholder="description">    
-        <br><br>    
-        <label><b>Value     
-        </b>    
-        </label>    
-        <input type="number" name="value" id="Pass" placeholder="value">    
-        <br><br>
-        <label><b>Add Income     
-        </b>         
-        <input type="submit" name="log" id="log" value="Add income">       
-        <br><br>     
-    </form>
-
+    <h1>Balance is {{.Balance}}</h1>
+    <img src="/static/output.png" alt="Italian Trulli">
+</div>
 </body>
 </html>
 <script>
@@ -43,7 +28,7 @@
 	function expensesPage() {
 	  window.location.href="http://localhost:8090/api/expense";
 	}
-  function balancePage() {
+    function balancePage() {
 	  window.location.href="http://localhost:8090/api/balance";
 	}
 </script>

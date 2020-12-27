@@ -4,8 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 	"github.com/peterP1998/CostManagementSystem/service"
+	"strconv"
+	"html/template"
 )
-
+func ExpensePage(w http.ResponseWriter, r *http.Request){
+    t, _ := template.ParseFiles("static/templates/expenses.html")
+	t.Execute(w, nil)
+}
 func GetExpenesesForUser(w http.ResponseWriter, r *http.Request){
 	token:=service.CheckAuthBeforeOperate(r,w)
 	username,_,err:=service.ParseToken(token.Value)
@@ -26,6 +31,7 @@ func GetExpenesesForUser(w http.ResponseWriter, r *http.Request){
 	json.NewEncoder(w).Encode(expenses)
 }
 func AddExpenseForUser(w http.ResponseWriter, r *http.Request){
+	r.ParseForm()
     token:=service.CheckAuthBeforeOperate(r,w)
 	username,_,err:=service.ParseToken(token.Value)
 	if err!=nil{
@@ -37,10 +43,15 @@ func AddExpenseForUser(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	err=service.CreateExpense(user.ID,r.Body)
+	i, err := strconv.Atoi(r.FormValue("value"))
+	if err!=nil{
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	err=service.CreateExpense(user.ID,r.FormValue("description"),i,r.FormValue("category"))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+	http.Redirect(w, r, "/api/account", http.StatusSeeOther)
 }

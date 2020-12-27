@@ -1,8 +1,6 @@
 package service
 import(
 	"github.com/peterP1998/CostManagementSystem/models"
-	"encoding/json"
-	"io"
 )
 func SelectAllIncomesForUser(id int)([]models.Income,error){
 	res,err :=models.DB.Query("select * from Income where userid=?;",id)
@@ -17,13 +15,8 @@ func SelectAllIncomesForUser(id int)([]models.Income,error){
 	}
 	return incomes,nil
 }
-func CreateIncome(id int,body io.Reader)(error){
-    var income models.Income
-	err := json.NewDecoder(body).Decode(&income)
-	if err!=nil{
-		return err
-	}
-	_,err =models.DB.Query("insert into Income(description,value,userid) Values(?,?,?);",income.Description,income.Value,id)
+func CreateIncome(id int,desc string,value int)(error){
+	_,err :=models.DB.Query("insert into Income(description,value,userid) Values(?,?,?);",desc,value,id)
 	if err!=nil{
 		return err
 	}

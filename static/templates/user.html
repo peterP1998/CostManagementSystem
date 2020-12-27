@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Coming Soon</title>
+    <link rel="stylesheet" href="/static/css/user.css" >
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body>
+ 
+<ul class="navbar">
+
+  <li><a  onClick="incomePage()">Add Icnome</a></li>
+  <li><a onClick="expensePage()">Add Expense</a></li>
+ <li><a href="main.html">Balance and info</a></li>
+  <li> <a href="/api/logout">Logout</a></li>
+
+</ul>
+<div class="content">
+    <h1>Welcome to your profile</h1>
+        <p>Choose what you want to do from navigation bar</p>
+      <p2>Thank you for using us!</p2>
+</div>
+
+</body>
+</html>
+<script>
+	function incomePage() {
+	  window.location.href="http://localhost:8090/api/income";
+	}
+	function expensePage() {
+	  window.location.href="http://localhost:8090/api/expense";
+	}
+</script>

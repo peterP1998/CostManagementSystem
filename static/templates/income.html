@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Coming Soon</title>
+    <link rel="stylesheet" href="/static/css/user.css" >
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body>
+ 
+<ul class="navbar">
+
+  <li><a  onClick="loginPage()">Add Income</a></li>
+  <li><a href="main.html">Blog</a></li>
+ <li><a href="main.html">About</a></li>
+  <li><a href="main.html">Contact</a></li>
+
+</div>
+</ul>
+<div class="content">    
+    <form id="incomes" method="post" action="/api/user/incomes">    
+        <label><b>Description     
+        </b>    
+        </label>    
+        <input type="text" name="description" id="Uname" placeholder="description">    
+        <br><br>    
+        <label><b>Value     
+        </b>    
+        </label>    
+        <input type="number" name="value" id="Pass" placeholder="value">    
+        <br><br>
+        <label><b>Email     
+        </b>         
+        <input type="submit" name="log" id="log" value="Add income">       
+        <br><br>     
+    </form>
+
+</body>
+</html>
+<script>
+	function incomePage() {
+	  window.location.href="http://localhost:8090/api/income";
+	}
+	function signinPage() {
+	  window.location.href="http://localhost:8090/api/register";
+	}
+</script>

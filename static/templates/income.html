@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Coming Soon</title>
+    <title>Expense system</title>
     <link rel="stylesheet" href="/static/css/user.css" >
     <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
@@ -12,6 +12,7 @@
   <li><a  onClick="incomePage()">Add Income</a></li>
   <li><a  onClick="expensesPage()">Add Expense</a></li>
   <li><a onClick="balancePage()">Balance and info</a></li>
+  <li><a onClick="groupPage()">Donate Group</a></li>
   <li> <a href="/api/logout">Logout</a></li>
 
 </div>
@@ -45,5 +46,8 @@
 	}
   function balancePage() {
 	  window.location.href="http://localhost:8090/api/balance";
-	}
+  }
+  function groupPage(){
+    window.location.href="http://localhost:8090/api/group";
+  }
 </script>

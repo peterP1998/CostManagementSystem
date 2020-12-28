@@ -10,7 +10,7 @@ func SelectAllExpensesForUser(id int)([]models.Expense,error){
 	expenses := make([]models.Expense, 0)
 	for res.Next() {
 		var expense models.Expense
-		res.Scan(&expense.ID, &expense.Description, &expense.Value, &expense.Userid)
+		res.Scan(&expense.ID, &expense.Description, &expense.Value,&expense.Category, &expense.Userid)
 		expenses = append(expenses, expense)
 	}
 	return expenses,nil
@@ -24,6 +24,15 @@ func CreateExpense(id int,desc string,value int,category string)(error){
 }
 func GetNumberOfExpensesOfOneCategory(id int,category string)(float64){
 	var cnt float64
-    _= models.DB.QueryRow(`select count(*) from Expense where userid=? and category=?`,id,category).Scan(&cnt)
+	res,err:= models.DB.Query(`select * from Expense where userid=? and category=?;`,id,category)
+	if err!=nil{
+		
+	}
+	cnt=0
+	for res.Next() {
+		var expense models.Expense
+		res.Scan(&expense.ID, &expense.Description, &expense.Value,&expense.Category, &expense.Userid)
+		cnt=cnt+float64(expense.Value)
+	}
     return cnt
 }

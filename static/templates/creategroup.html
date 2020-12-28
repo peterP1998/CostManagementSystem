@@ -15,10 +15,24 @@
   <li> <a href="/api/logout">Logout</a></li>
 
 </ul>
-<div class="content">
-    <h1>Welcome to your profile</h1>
-        <p>Choose what you want to do from navigation bar</p>
-      <p2>Thank you for using us!</p2>
+<div class="content">    
+    <h2>{{.messg}}</h2>
+    <form id="incomes" method="post" action="/api/group">    
+        <label><b>Group name     
+        </b>    
+        </label>    
+        <input type="text" name="group" id="Uname" placeholder="group">    
+        <br><br>    
+        <label><b>Target Money     
+        </b>    
+        </label>    
+        <input type="number"  min="0" name="money" id="Pass" placeholder="money">    
+        <br><br>
+        <label><b>Create Group     
+        </b>         
+        <input type="submit" name="log" id="log" value="Create Group">       
+        <br><br>     
+    </form>
 </div>
 
 </body>
@@ -30,7 +44,7 @@
 	function userPage() {
 	  window.location.href="http://localhost:8090/api/user";
 	}
-  function deletePage() {
+    function deletePage() {
 	  window.location.href="http://localhost:8090/api/user/delete";
 	}
 </script>

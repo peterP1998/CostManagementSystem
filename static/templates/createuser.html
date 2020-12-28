@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense system</title>
+    <link rel="stylesheet" href="/static/css/user.css" >
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body>
+ 
+<ul class="navbar">
+
+  <li><a  onClick="groupPage()">Create Group</a></li>
+  <li><a  onClick="userPage()">Create User</a></li>
+  <li><a onClick="deletePage()">Delete User</a></li>
+  <li> <a href="/api/logout">Logout</a></li>
+
+</ul>
+<div class="content">    
+    <h2>{{.messg}}</h2>
+    <form id="crateuseer" method="post" action="/api/user">    
+        <label><b>User Name     
+        </b>    
+        </label>    
+        <input type="text" name="username" id="Uname" placeholder="Username">    
+        <br><br>    
+        <label><b>Password     
+        </b>    
+        </label>    
+        <input type="Password" name="password" id="Pass" placeholder="Password">    
+        <br><br>
+        <label><b>Email     
+        </b>    
+        </label>    
+        <input type="Email" name="email" id="email" placeholder="Email">    
+        <br><br>
+        <label><b>Admin     
+        </b>    
+        </label>  
+        <select id="admin" name="admin">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select> 
+        <br><br>  
+        <input type="submit" name="log" id="log" value="Create">       
+        <br><br>     
+    </form>
+</div>
+
+</body>
+</html>
+<script>
+	function groupPage() {
+	  window.location.href="http://localhost:8090/api/group/create";
+	}
+	function userPage() {
+	  window.location.href="http://localhost:8090/api/user";
+	}
+    function deletePage() {
+	  window.location.href="http://localhost:8090/api/user/delete";
+	}
+</script>

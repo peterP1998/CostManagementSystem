@@ -4,6 +4,7 @@ import (
 	"github.com/peterP1998/CostManagementSystem/service"
 	"net/http"
 	"html/template"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var jwtKey = []byte("my_secret_key")
@@ -17,14 +18,6 @@ func Welcome(w http.ResponseWriter, r *http.Request){
 }
 func GetRegister(w http.ResponseWriter, r *http.Request){
 	t, _ := template.ParseFiles("static/templates/signup.html")
-	t.Execute(w, nil)
-}
-func GetUserAcc(w http.ResponseWriter, r *http.Request){
-	t, _ := template.ParseFiles("static/templates/user.html")
-	t.Execute(w, nil)
-}
-func GetAdminAcc(w http.ResponseWriter, r *http.Request){
-	t, _ := template.ParseFiles("static/templates/admin.html")
 	t.Execute(w, nil)
 }
 func Account(w http.ResponseWriter, r *http.Request){
@@ -48,7 +41,8 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	if  user.Password != r.FormValue("password") {
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password),  []byte(r.FormValue("password")))
+	if  err!=nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -64,16 +58,5 @@ func Logout(w http.ResponseWriter, r *http.Request){
 		Name:   "token",
 		MaxAge: -1}
 	http.SetCookie(w, &c)
-
-	//w.Write([]byte("Old cookie deleted. Logged out!\n"))
-	http.Redirect(w, r, "/api/welcome", http.StatusSeeOther)
-}
-
-func push(w http.ResponseWriter, resource string) {
-	pusher, ok := w.(http.Pusher)
-	if ok {
-		if err := pusher.Push(resource, nil); err == nil {
-			return
-		}
-	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

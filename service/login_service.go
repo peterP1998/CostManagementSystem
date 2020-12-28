@@ -40,7 +40,7 @@ func CreateAndConfigureToken(user models.User,w http.ResponseWriter)(error){
 	return nil
 }
 func configureToken(user models.User)(*models.Claims,time.Time){
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(180 * time.Minute)
 	claims := &models.Claims{
 		Username: user.Name,
 		Admin:user.Admin,

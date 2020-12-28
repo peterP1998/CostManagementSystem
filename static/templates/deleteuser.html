@@ -15,10 +15,20 @@
   <li> <a href="/api/logout">Logout</a></li>
 
 </ul>
-<div class="content">
-    <h1>Welcome to your profile</h1>
-        <p>Choose what you want to do from navigation bar</p>
-      <p2>Thank you for using us!</p2>
+<div class="content">    
+    <form id="crateuseer" method="post" action="/api/user/delete">    
+        <label><b>User name     
+        </b>    
+        </label>  
+        <select id="name" name="name">
+            {{range .}}
+                <option value="{{.Name}}">{{.Name}}</option>
+            {{end}}
+        </select> 
+        <br><br>  
+        <input type="submit" name="log" id="log" value="Delete">       
+        <br><br>     
+    </form>
 </div>
 
 </body>
@@ -30,7 +40,7 @@
 	function userPage() {
 	  window.location.href="http://localhost:8090/api/user";
 	}
-  function deletePage() {
+    function deletePage() {
 	  window.location.href="http://localhost:8090/api/user/delete";
 	}
 </script>

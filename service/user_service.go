@@ -57,8 +57,15 @@ func DeleteUserById(userId int,w http.ResponseWriter){
 		return
 	}
 }
-func CreateUserDB(w http.ResponseWriter, name string,email string,password string){
+func RegisterUserDB(w http.ResponseWriter, name string,email string,password string){
 	_,err :=models.DB.Query("insert into User(username,email,password,admin) Values(?,?,?,?);",name,email,password,false)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+func CreateUserDB(w http.ResponseWriter, name string,email string,password string,admin bool){
+	_,err :=models.DB.Query("insert into User(username,email,password,admin) Values(?,?,?,?);",name,email,password,admin)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

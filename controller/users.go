@@ -1,4 +1,4 @@
-package handlers
+package controller
 
 import (
 	"github.com/peterP1998/CostManagementSystem/service"
@@ -71,14 +71,20 @@ func GetUser(w http.ResponseWriter, r *http.Request){
 }
 func DeleteUser(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
-	t, _ := template.ParseFiles("static/templates/createuser.html")
 	token:=service.CheckAuthBeforeOperate(r,w)
-	username,admin,err:=service.ParseToken(token.Value)
+	_,admin,err:=service.ParseToken(token.Value)
 	if admin ==false|| err!=nil{
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	service.DeleteUserById(userId,w)
+	user,err:=service.SelectUserByName(r.FormValue("name"))
+	if err!=nil{
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	service.DeleteUserById(user.ID,w)
+	//ok := map[string]interface{}{"messg":"User deleted succesfully"}
+	http.Redirect(w, r, "/api/account", http.StatusSeeOther)
 }
 func CreateUser(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()

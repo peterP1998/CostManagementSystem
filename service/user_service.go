@@ -51,7 +51,17 @@ func SelectUserById(userId int)(models.User,error){
 	return user,err
 }
 func DeleteUserById(userId int,w http.ResponseWriter){
-	_,err :=models.DB.Query("delete from User where id=?;",userId)
+	_,err :=models.DB.Query("delete from Expense where userid=?;",userId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	_,err =models.DB.Query("delete from Income where userid=?;",userId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	_,err =models.DB.Query("delete from User where id=?;",userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

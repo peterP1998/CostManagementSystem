@@ -5,9 +5,10 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"database/sql"
 	"github.com/gorilla/mux"
-	"github.com/peterP1998/CostManagementSystem/handlers"
+	"github.com/peterP1998/CostManagementSystem/controller"
 	"github.com/peterP1998/CostManagementSystem/models"
 	"net/http"
+	"github.com/peterP1998/CostManagementSystem/routes"
 )
 
 func main() {
@@ -18,29 +19,26 @@ func main() {
 	fs := http.FileServer(http.Dir("static"))
     router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
     http.Handle("/", router)
-	router.HandleFunc("/api/login", handlers.GetForm).Methods("GET")
-	router.HandleFunc("/api/login", handlers.Signin).Methods("POST")
-	router.HandleFunc("/",handlers.Welcome).Methods("GET")
-	router.HandleFunc("/api/register",handlers.GetRegister).Methods("GET")
-	router.HandleFunc("/api/register",handlers.RegisterUser).Methods("POST")
-	router.HandleFunc("/api/account",handlers.Account).Methods("GET")
-	router.HandleFunc("/api/income",handlers.IncomePage).Methods("GET")
-	router.HandleFunc("/api/expense",handlers.ExpensePage).Methods("GET")
-	router.HandleFunc("/api/balance",handlers.GetBalanceForUser).Methods("GET")
-	router.HandleFunc("/api/logout", handlers.Logout).Methods("GET")
-	router.HandleFunc("/api/user", handlers.GetCreateUserPage).Methods("GET")
-	router.HandleFunc("/api/user", handlers.CreateUser).Methods("POST")
-	router.HandleFunc("/api/user/delete", handlers.DeleteUser).Methods("POST")
-	router.HandleFunc("/api/user/delete", handlers.GetDeleteUserPage).Methods("GET")
-	router.HandleFunc("/api/user/{id:[0-9]+}", handlers.GetUser).Methods("GET")
-	router.HandleFunc("/api/user/expenses", handlers.GetExpenesesForUser).Methods("GET")
-	router.HandleFunc("/api/user/expenses", handlers.AddExpenseForUser).Methods("POST")
-	router.HandleFunc("/api/user/incomes", handlers.GetIncomesForUser).Methods("GET")
-	router.HandleFunc("/api/user/incomes", handlers.AddIncomeForUser).Methods("POST")
-	router.HandleFunc("/api/group/{id:[0-9]+}", handlers.GetGroup).Methods("GET")
-	router.HandleFunc("/api/group", handlers.CreateGroup).Methods("POST")
-	router.HandleFunc("/api/group/create", handlers.GetCreateGroupPage).Methods("GET")
-	router.HandleFunc("/api/group/{id:[0-9]+}", handlers.DeleteGroup).Methods("DELETE")
-	router.HandleFunc("/api/group/{id:[0-9]+}", handlers.AddIncomeForUser).Methods("POST")
+	router.HandleFunc("/api/login", controller.GetForm).Methods("GET")
+	router.HandleFunc("/api/login", controller.Signin).Methods("POST")
+	router.HandleFunc("/",controller.Welcome).Methods("GET")
+	router.HandleFunc("/api/register",controller.GetRegister).Methods("GET")
+	router.HandleFunc("/api/register",controller.RegisterUser).Methods("POST")
+	router.HandleFunc("/api/account",controller.Account).Methods("GET")
+	router.HandleFunc("/api/income",controller.IncomePage).Methods("GET")
+	router.HandleFunc("/api/expense",controller.ExpensePage).Methods("GET")
+	router.HandleFunc("/api/balance",controller.GetBalanceForUser).Methods("GET")
+	router.HandleFunc("/api/logout", controller.Logout).Methods("GET")
+	routes.UserRoutes(router)
+	router.HandleFunc("/api/user/{id:[0-9]+}", controller.GetUser).Methods("GET")
+	router.HandleFunc("/api/user/expenses", controller.GetExpenesesForUser).Methods("GET")
+	router.HandleFunc("/api/user/expenses", controller.AddExpenseForUser).Methods("POST")
+	router.HandleFunc("/api/user/incomes", controller.GetIncomesForUser).Methods("GET")
+	router.HandleFunc("/api/user/incomes", controller.AddIncomeForUser).Methods("POST")
+	router.HandleFunc("/api/group/{id:[0-9]+}", controller.GetGroup).Methods("GET")
+	router.HandleFunc("/api/group", controller.CreateGroup).Methods("POST")
+	router.HandleFunc("/api/group/create", controller.GetCreateGroupPage).Methods("GET")
+	router.HandleFunc("/api/group/{id:[0-9]+}", controller.DeleteGroup).Methods("DELETE")
+	router.HandleFunc("/api/group/{id:[0-9]+}", controller.AddIncomeForUser).Methods("POST")
 	http.ListenAndServe(":8090", router)
 }

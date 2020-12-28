@@ -1,4 +1,4 @@
-package handlers
+package controller
 
 import (
 	"github.com/peterP1998/CostManagementSystem/service"

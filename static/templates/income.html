@@ -12,6 +12,8 @@
   <li><a  onClick="incomePage()">Add Income</a></li>
   <li><a  onClick="expensesPage()">Add Expense</a></li>
   <li><a onClick="balancePage()">Balance and info</a></li>
+  <li><a onClick="expenseHistoryPage()">Expense History</a></li>
+  <li><a onClick="incomeHistoryPage()">Income History</a></li>
   <li><a onClick="groupPage()">Donate Group</a></li>
   <li> <a href="/api/logout">Logout</a></li>
 
@@ -50,4 +52,10 @@
   function groupPage(){
     window.location.href="http://localhost:8090/api/group";
   }
+  function expenseHistoryPage() {
+	  window.location.href="http://localhost:8090/api/user/expenses";
+  }
+  function incomeHistoryPage() {
+	  window.location.href="http://localhost:8090/api/user/incomes";
+	}
 </script>

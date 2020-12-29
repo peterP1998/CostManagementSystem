@@ -14,14 +14,14 @@ type ExpenseController struct {
 func (expenseController ExpenseController) ExpensePage(w http.ResponseWriter, r *http.Request){
 	views.CreateView(w,"static/templates/expenses.html",nil)
 }
-/*func GetExpenesesForUser(w http.ResponseWriter, r *http.Request){
-	token:=service.CheckAuthBeforeOperate(r,w)
-	username,_,err:=service.ParseToken(token.Value)
+func (expenseController ExpenseController) GetExpenesesForUser(w http.ResponseWriter, r *http.Request){
+	token:=expenseController.accountService.CheckAuthBeforeOperate(r,w)
+	username,_,err:=expenseController.accountService.ParseToken(token.Value)
 	if err!=nil{
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	user,err :=service.SelectUserByName(username)
+	user,err :=expenseController.userService.SelectUserByName(username)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -31,8 +31,8 @@ func (expenseController ExpenseController) ExpensePage(w http.ResponseWriter, r 
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(expenses)
-}*/
+	views.CreateView(w,"static/templates/expenseHistory.html",expenses)
+}
 func (expenseController ExpenseController)AddExpenseForUser(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
     token:=expenseController.accountService.CheckAuthBeforeOperate(r,w)

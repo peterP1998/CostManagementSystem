@@ -13,7 +13,7 @@ type IncomeController struct {
 }
 func (incomeController IncomeController)IncomePage(w http.ResponseWriter, r *http.Request){
 	views.CreateView(w,"static/templates/income.html",nil)
-}/*
+}
 func (incomeController IncomeController) GetIncomesForUser(w http.ResponseWriter, r *http.Request){
 	token:=incomeController.accountService.CheckAuthBeforeOperate(r,w)
 	username,_,err:=incomeController.accountService.ParseToken(token.Value)
@@ -21,7 +21,7 @@ func (incomeController IncomeController) GetIncomesForUser(w http.ResponseWriter
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	user,err :=service.SelectUserByName(username)
+	user,err :=incomeController.userService.SelectUserByName(username)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -31,8 +31,8 @@ func (incomeController IncomeController) GetIncomesForUser(w http.ResponseWriter
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(incomes)
-}*/
+	views.CreateView(w,"static/templates/incomeHistory.html",incomes)
+}
 func (incomeController IncomeController)AddIncomeForUser(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
     token:=incomeController.accountService.CheckAuthBeforeOperate(r,w)

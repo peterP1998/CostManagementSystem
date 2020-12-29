@@ -38,12 +38,12 @@ func (route Route) AccountRoutes(router *mux.Router) {
 }
 func (route Route) IncomeRoutes(router *mux.Router) {
 	router.HandleFunc("/api/income",route.incomeController.IncomePage).Methods("GET")
-	//router.HandleFunc("/api/user/incomes", route.incomeController.GetIncomesForUser).Methods("GET")
+	router.HandleFunc("/api/user/incomes", route.incomeController.GetIncomesForUser).Methods("GET")
 	router.HandleFunc("/api/user/incomes", route.incomeController.AddIncomeForUser).Methods("POST")
 
 }
 func (route Route) ExpenseRoutes(router *mux.Router) {
-	//router.HandleFunc("/api/user/expenses", route.expenseController.GetExpenesesForUser).Methods("GET")
+	router.HandleFunc("/api/user/expenses", route.expenseController.GetExpenesesForUser).Methods("GET")
 	router.HandleFunc("/api/user/expenses", route.expenseController.AddExpenseForUser).Methods("POST")
 	router.HandleFunc("/api/expense",route.expenseController.ExpensePage).Methods("GET")
 }

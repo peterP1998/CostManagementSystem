@@ -13,7 +13,26 @@ func (groupService GroupService) SelectGroupById(groupId int)(models.Group,error
 	err :=models.DB.QueryRow("select * from Groupp where id=?;",groupId).Scan(&group.ID, &group.GroupName, &group.MoneyByNow, &group.TargetMoney)
 	return group,err
 }
-
+func (groupService GroupService) SelectGroupByName(name string)(models.Group,error){
+	var group models.Group
+	err :=models.DB.QueryRow("select * from Groupp where groupname=?;",name).Scan(&group.ID, &group.GroupName, &group.MoneyByNow, &group.TargetMoney)
+	return group,err
+}
+func (groupService GroupService) UpdateGroupMoney(id int,value int)(error){
+	_,err :=models.DB.Query("Update Groupp set moneybynow=? where id=?;",value,id)
+	return err
+}
+func (groupService GroupService) SelectAllGroups()([]models.Group,error){
+	res,err :=models.DB.Query("select * from Groupp;")
+	groups := make([]models.Group, 0)
+	for res.Next() {
+		var group models.Group
+		res.Scan(&group.ID, &group.GroupName, &group.MoneyByNow,&group.TargetMoney)
+		groups = append(groups, group)
+	}
+	defer res.Close()
+	return groups,err
+}
 func SplitUrlGroup(r *http.Request)(int,error){
 	p := strings.Split(r.URL.Path, "/group/")
 	groupId,err:=strconv.Atoi(p[len(p)-1])

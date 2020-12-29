@@ -5,13 +5,26 @@ import (
 	"net/http"
 	"github.com/peterP1998/CostManagementSystem/service"
 	"github.com/peterP1998/CostManagementSystem/views"
+	"fmt"
+	"strconv"
 )
 type GroupController struct {
 	accountService service.AccountService
 	groupService service.GroupService
+	userService service.UserService
+	expenseService service.ExpenseService
 }
 func (groupController GroupController) GetCreateGroupPage(w http.ResponseWriter, r *http.Request){
 	views.CreateView(w,"static/templates/creategroup.html",nil)
+}
+func (groupController GroupController) GetDonateGroupPage(w http.ResponseWriter, r *http.Request){
+	groups,err:=groupController.groupService.SelectAllGroups()
+	fmt.Println(groups)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	views.CreateView(w,"static/templates/donategroup.html",groups)
 }
 /*func (groupController GroupController) GetGroup(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
@@ -57,26 +70,39 @@ func (groupController GroupController) DeleteGroup(w http.ResponseWriter, r *htt
 	}
 	groupController.groupService.DeleteGroup(groupId,w)
 }
-/*func DonateMoney(w http.ResponseWriter, r *http.Request){
-	token:=service.CheckAuthBeforeOperate(r,w)
-	username,_,err:=service.ParseToken(token.Value)
+
+func (groupController GroupController) DonateMoney(w http.ResponseWriter, r *http.Request){
+	r.ParseForm()
+	token:=groupController.accountService.CheckAuthBeforeOperate(r,w)
+	username,_,err:=groupController.accountService.ParseToken(token.Value)
 	if err!=nil{
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	//user,err :=service.SelectUserByName(username)
+	user,err :=groupController.userService.SelectUserByName(username)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	groupId,err:=service.SplitUrlGroup(r)
+	group,err:=groupController.groupService.SelectGroupByName(r.FormValue("name"))
+	i, err := strconv.Atoi(r.FormValue("value"))
+	if err!=nil{
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if group.MoneyByNow == group.TargetMoney{
+		return
+	}else if group.MoneyByNow+float64(i)>=group.TargetMoney{
+		i=int(group.TargetMoney-group.MoneyByNow)
+		group.MoneyByNow=group.TargetMoney
+	}else{
+        group.MoneyByNow=group.MoneyByNow+float64(i)
+	}
+	err=groupController.groupService.UpdateGroupMoney(group.ID,int(group.MoneyByNow))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-//	group,err:=service.SelectGroupById(groupId)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-}*/
+	groupController.expenseService.CreateExpense(user.ID,"Group donate",i,"Other")
+    http.Redirect(w, r, "/api/account", http.StatusSeeOther)
+}

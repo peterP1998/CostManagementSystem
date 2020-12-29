@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense system</title>
+    <link rel="stylesheet" href="/static/css/user.css" >
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body>
+ 
+<ul class="navbar">
+
+    <li><a  onClick="incomePage()">Add Income</a></li>
+    <li><a  onClick="expensesPage()">Add Expense</a></li>
+    <li><a onClick="balancePage()">Balance and info</a></li>
+    <li><a onClick="expenseHistoryPage()">Expense History</a></li>
+    <li><a onClick="incomeHistoryPage()">Income History</a></li>
+    <li><a onClick="donatePage()">Donate Group</a></li>
+    <li> <a href="/api/logout">Logout</a></li>
+
+</ul>
+<div class="content">    
+    <form id="donate" method="post" action="/api/group/donate">    
+        <label><b>Group name     
+        </b>    
+        </label>  
+        <select id="name" name="name">
+            {{range .}}
+                <option value="{{.GroupName}}">{{.GroupName}}</option>
+            {{end}}
+        </select> 
+        <br><br>
+        <label><b>Value     
+        </b>    
+        </label>    
+        <input type="number" min="0" name="value" id="value" placeholder="value">    
+        <br><br>  
+        <input type="submit" name="log" id="log" value="Donate">       
+        <br><br>     
+    </form>
+</div>
+
+</body>
+</html>
+<script>
+	function incomePage() {
+	  window.location.href="http://localhost:8090/api/income";
+	}
+	function expensesPage() {
+	  window.location.href="http://localhost:8090/api/expense";
+	}
+    function balancePage() {
+	  window.location.href="http://localhost:8090/api/balance";
+    }
+    function expenseHistoryPage() {
+	  window.location.href="http://localhost:8090/api/user/expenses";
+    }
+    function incomeHistoryPage() {
+	  window.location.href="http://localhost:8090/api/user/incomes";
+    }
+    function donatePage() {
+	  window.location.href="http://localhost:8090/api/group/donate";
+	}
+</script>

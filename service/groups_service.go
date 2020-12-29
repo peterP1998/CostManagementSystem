@@ -5,24 +5,39 @@ import (
 	"strconv"
 	"net/http"
 )
-func SelectGroupById(groupId int)(models.Group,error){
+type GroupService struct {
+
+}
+func (groupService GroupService) SelectGroupById(groupId int)(models.Group,error){
 	var group models.Group
 	err :=models.DB.QueryRow("select * from Groupp where id=?;",groupId).Scan(&group.ID, &group.GroupName, &group.MoneyByNow, &group.TargetMoney)
 	return group,err
 }
+
 func SplitUrlGroup(r *http.Request)(int,error){
 	p := strings.Split(r.URL.Path, "/group/")
 	groupId,err:=strconv.Atoi(p[len(p)-1])
 	return groupId,err
 }
-func CreateGroupDB(targetmoney int, groupname string)(error){
+func (groupService GroupService) CreateGroup(money string,group string)(error){
+	i, err := strconv.Atoi(money)
+	if err!=nil{
+		return err
+	}
+	err=createGroupDB(i,group)
+	if err!=nil{
+		return err
+	}
+	return nil
+}
+func createGroupDB(targetmoney int, groupname string)(error){
 	_,err :=models.DB.Query("insert into Groupp(groupname,moneybynow,targetmoney) Values(?,?,?);",groupname,0,targetmoney)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func DeleteGroup(groupId int,w http.ResponseWriter){
+func (groupService GroupService) DeleteGroup(groupId int,w http.ResponseWriter){
     _,err :=models.DB.Query("delete from Groupp where id=?;",groupId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

@@ -1,26 +1,18 @@
 package service
 
 import (
-	"encoding/json"
 	"github.com/peterP1998/CostManagementSystem/models"
-	"io"
 	"github.com/dgrijalva/jwt-go"
 	"time"
 	"net/http"
+	"github.com/peterP1998/CostManagementSystem/views"
+	"golang.org/x/crypto/bcrypt"
 )
 type AccountService struct {
-
+    userService UserService
 }
 var jwtKey = []byte("my_secret_key")
-func DecodeJsonCredentials(body io.Reader)(models.Credentials,error){
-    var creds models.Credentials
-	err := json.NewDecoder(body).Decode(&creds)
-	if err != nil {
-		return models.Credentials{},err
-	}
-	return creds,nil
-}
-func ParseToken(tokenString string) (string,bool,error){
+func (account *AccountService) ParseToken(tokenString string) (string,bool,error){
 	token, err := jwt.ParseWithClaims(tokenString, &models.Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte("my_secret_key"),nil
 	})
@@ -33,7 +25,34 @@ func ParseToken(tokenString string) (string,bool,error){
 		return "",false,err
 	}
 }
-func CreateAndConfigureToken(user models.User,w http.ResponseWriter)(error){
+func (account AccountService) CheckAuthBeforeOperate(r *http.Request,w http.ResponseWriter)(*http.Cookie){
+	token, err := checkForAuthorization(r)
+	authorizationResponses(w,err,r)
+	return token
+}
+func (account AccountService) CheckAdminPermission(admin bool,w http.ResponseWriter){
+    if admin ==false{
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+}
+func (account AccountService) Login(password string,username string,w http.ResponseWriter){
+	user,err :=account.userService.SelectUserByName(username)
+	if  err!=nil {
+		views.CreateView(w,"static/templates/index.html",map[string]interface{}{"messg": "Wrong username or password!"})
+		return
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password),  []byte(password))
+	if  err!=nil {
+		views.CreateView(w,"static/templates/index.html",map[string]interface{}{"messg": "Wrong username or password!"})
+		return
+	}
+	err=createAndConfigureToken(user,w)
+	if err != nil {
+		views.CreateView(w,"static/templates/index.html",map[string]interface{}{"messg": "Something went wrong please try againg!"})
+	}
+}
+func  createAndConfigureToken(user models.User,w http.ResponseWriter)(error){
 	claims,expirationTime:=configureToken(user)
 	tokenString, err := createToken(claims)
 	if err != nil {
@@ -75,24 +94,8 @@ func checkForAuthorization(r *http.Request)(*http.Cookie,error){
 	}
 	return toekn,nil
 }
-func authorizationResponses(w http.ResponseWriter,err error){
+func authorizationResponses(w http.ResponseWriter,err error,r *http.Request){
 	if err != nil {
-		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-}
-func CheckAuthBeforeOperate(r *http.Request,w http.ResponseWriter)(*http.Cookie){
-	token, err := checkForAuthorization(r)
-	authorizationResponses(w,err)
-	return token
-}
-func CheckAdminPermission(admin bool,w http.ResponseWriter){
-    if admin ==false{
-		w.WriteHeader(http.StatusUnauthorized)
-		return
+		http.Redirect(w, r, "/api/login", http.StatusSeeOther)
 	}
 }

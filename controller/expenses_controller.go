@@ -1,17 +1,20 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 	"github.com/peterP1998/CostManagementSystem/service"
 	"strconv"
-	"html/template"
+	"github.com/peterP1998/CostManagementSystem/views"
 )
-func ExpensePage(w http.ResponseWriter, r *http.Request){
-    t, _ := template.ParseFiles("static/templates/expenses.html")
-	t.Execute(w, nil)
+type ExpenseController struct {
+	accountService service.AccountService
+	expenseService service.ExpenseService
+	userService service.UserService
 }
-func GetExpenesesForUser(w http.ResponseWriter, r *http.Request){
+func (expenseController ExpenseController) ExpensePage(w http.ResponseWriter, r *http.Request){
+	views.CreateView(w,"static/templates/expenses.html",nil)
+}
+/*func GetExpenesesForUser(w http.ResponseWriter, r *http.Request){
 	token:=service.CheckAuthBeforeOperate(r,w)
 	username,_,err:=service.ParseToken(token.Value)
 	if err!=nil{
@@ -29,16 +32,16 @@ func GetExpenesesForUser(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	json.NewEncoder(w).Encode(expenses)
-}
-func AddExpenseForUser(w http.ResponseWriter, r *http.Request){
+}*/
+func (expenseController ExpenseController)AddExpenseForUser(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
-    token:=service.CheckAuthBeforeOperate(r,w)
-	username,_,err:=service.ParseToken(token.Value)
+    token:=expenseController.accountService.CheckAuthBeforeOperate(r,w)
+	username,_,err:=expenseController.accountService.ParseToken(token.Value)
 	if err!=nil{
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	user,err :=service.SelectUserByName(username)
+	user,err :=expenseController.userService.SelectUserByName(username)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -48,7 +51,7 @@ func AddExpenseForUser(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	err=service.CreateExpense(user.ID,r.FormValue("description"),i,r.FormValue("category"))
+	err=expenseController.expenseService.CreateExpense(user.ID,r.FormValue("description"),i,r.FormValue("category"))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

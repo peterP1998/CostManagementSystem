@@ -4,17 +4,18 @@ package controller
 import (
 	"net/http"
 	"github.com/peterP1998/CostManagementSystem/service"
-	"encoding/json"
-	"html/template"
-	"strconv"
+	"github.com/peterP1998/CostManagementSystem/views"
 )
-func GetCreateGroupPage(w http.ResponseWriter, r *http.Request){
-    t, _ := template.ParseFiles("static/templates/creategroup.html")
-	t.Execute(w, nil)
+type GroupController struct {
+	accountService service.AccountService
+	groupService service.GroupService
 }
-func GetGroup(w http.ResponseWriter, r *http.Request){
+func (groupController GroupController) GetCreateGroupPage(w http.ResponseWriter, r *http.Request){
+	views.CreateView(w,"static/templates/creategroup.html",nil)
+}
+/*func (groupController GroupController) GetGroup(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
-    service.CheckAuthBeforeOperate(r,w)
+    groupController.accountService.CheckAuthBeforeOperate(r,w)
 	groupId,err:=service.SplitUrlGroup(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -26,29 +27,25 @@ func GetGroup(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	json.NewEncoder(w).Encode(group)
-}
-func CreateGroup(w http.ResponseWriter, r *http.Request){
-	t, _ := template.ParseFiles("static/templates/creategroup.html")
+}*/
+func (groupController GroupController) CreateGroup(w http.ResponseWriter, r *http.Request){
 	errresp := map[string]interface{}{"messg": "Something went wrong!Try again!"}
 	ok := map[string]interface{}{"messg":"Group created succesfully"}
 	r.ParseForm()
-	token:=service.CheckAuthBeforeOperate(r,w)
-	_,admin,err:=service.ParseToken(token.Value)
+	token:=groupController.accountService.CheckAuthBeforeOperate(r,w)
+	_,admin,err:=groupController.accountService.ParseToken(token.Value)
 	if admin ==false|| err!=nil{
-		t.Execute(w, errresp)
-		return
+		views.CreateView(w,"static/templates/creategroup.html",errresp)
 	}
-	i, err := strconv.Atoi(r.FormValue("money"))
+	err=groupController.groupService.CreateGroup(r.FormValue("money"),r.FormValue("group"))
 	if err!=nil{
-		t.Execute(w, errresp)
-		return
+		views.CreateView(w,"static/templates/creategroup.html",errresp)
 	}
-	service.CreateGroupDB(i,r.FormValue("group"))
-	t.Execute(w, ok)
+	views.CreateView(w,"static/templates/creategroup.html",ok)
 }
-func DeleteGroup(w http.ResponseWriter, r *http.Request){
-	token:=service.CheckAuthBeforeOperate(r,w)
-	_,admin,err:=service.ParseToken(token.Value)
+func (groupController GroupController) DeleteGroup(w http.ResponseWriter, r *http.Request){
+	token:=groupController.accountService.CheckAuthBeforeOperate(r,w)
+	_,admin,err:=groupController.accountService.ParseToken(token.Value)
 	if admin ==false|| err!=nil{
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -58,7 +55,7 @@ func DeleteGroup(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	service.DeleteGroup(groupId,w)
+	groupController.groupService.DeleteGroup(groupId,w)
 }
 /*func DonateMoney(w http.ResponseWriter, r *http.Request){
 	token:=service.CheckAuthBeforeOperate(r,w)

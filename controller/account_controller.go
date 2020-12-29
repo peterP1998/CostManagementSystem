@@ -7,18 +7,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var jwtKey = []byte("my_secret_key")
-func GetForm(w http.ResponseWriter, r *http.Request){
-	t, _ := template.ParseFiles("static/templates/index.html")
-	t.Execute(w, nil)
+
+func GetLoginForm(w http.ResponseWriter, r *http.Request){
+	CreateView(w,"static/templates/index.html",nil)
 }
 func Welcome(w http.ResponseWriter, r *http.Request){
-	t, _ := template.ParseFiles("static/templates/welcome.html")
-	t.Execute(w, nil)
+	CreateView(w,"static/templates/welcome.html",nil)
 }
 func GetRegister(w http.ResponseWriter, r *http.Request){
-	t, _ := template.ParseFiles("static/templates/signup.html")
-	t.Execute(w, nil)
+	CreateView(w,"static/templates/signup.html",nil)
 }
 func Account(w http.ResponseWriter, r *http.Request){
 	token:=service.CheckAuthBeforeOperate(r,w)
@@ -27,28 +24,27 @@ func Account(w http.ResponseWriter, r *http.Request){
         http.Redirect(w, r, "/api/login", http.StatusSeeOther)
 	}
 	if admin ==false{
-		t, _ := template.ParseFiles("static/templates/user.html")
-	    t.Execute(w, nil)
+		CreateView(w,"static/templates/user.html",nil)
 	}else {
-		t, _ := template.ParseFiles("static/templates/admin.html")
-	    t.Execute(w, nil)
+		CreateView(w,"static/templates/admin.html",nil)
 	}
 }
 func Signin(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
+	errresp := map[string]interface{}{"messg": "Something went wrong!Try again!"}
 	user,err :=service.SelectUserByName(r.FormValue("username"))
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		CreateView(w,"static/templates/index.html",errresp)
 		return
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password),  []byte(r.FormValue("password")))
 	if  err!=nil {
-		w.WriteHeader(http.StatusUnauthorized)
+		CreateView(w,"static/templates/index.html",errresp)
 		return
 	}
 	err=service.CreateAndConfigureToken(user,w)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		CreateView(w,"static/templates/index.html",errresp)
 		return
 	}
 	http.Redirect(w, r, "/api/account", http.StatusSeeOther)

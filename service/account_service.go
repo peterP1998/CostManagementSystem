@@ -8,6 +8,9 @@ import (
 	"time"
 	"net/http"
 )
+type AccountService struct {
+
+}
 var jwtKey = []byte("my_secret_key")
 func DecodeJsonCredentials(body io.Reader)(models.Credentials,error){
     var creds models.Credentials

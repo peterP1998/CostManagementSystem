@@ -14,12 +14,14 @@
   <li><a onClick="balancePage()">Balance and info</a></li>
   <li><a onClick="expenseHistoryPage()">Expense History</a></li>
   <li><a onClick="incomeHistoryPage()">Income History</a></li>
+  <li><a onClick="donatePage()">Donate Group</a></li>
   <li> <a href="/api/logout">Logout</a></li>
 
 </ul>
 <div class="content">    
     <h1>Balance is {{.Balance}}</h1>
-    <img src="/static/output.png" alt="Italian Trulli">
+    <img src="/static/output.png" alt="">
+    <img src="/static/income.png" alt="">
 </div>
 </body>
 </html>
@@ -38,5 +40,8 @@
   }
   function incomeHistoryPage() {
 	  window.location.href="http://localhost:8090/api/user/incomes";
+  }
+  function donatePage() {
+	  window.location.href="http://localhost:8090/api/group/donate";
 	}
 </script>

@@ -26,6 +26,22 @@ func createExpenseChart(userid int){
 	defer f.Close()
 	pie.Render(chart.PNG, f)
 }
+func createIncomeChart(userid int){
+	pie := chart.PieChart{
+		Width:  256,
+		Height: 256,
+		Values: []chart.Value{
+			{Value: getNumberOfIncomesOfOneCategory(userid,"Salary"), Label: "Salary"},
+			{Value: getNumberOfIncomesOfOneCategory(userid,"Gift"), Label: "Gift"},
+			{Value: getNumberOfIncomesOfOneCategory(userid,"Found"), Label: "Found"},
+			{Value: getNumberOfIncomesOfOneCategory(userid,"Sell"), Label: "Sell"},
+		},
+	}
+
+	f, _ := os.Create("static/income.png")
+	defer f.Close()
+	pie.Render(chart.PNG, f)
+}
 func calculateBalance(incomes []models.Income,expenses []models.Expense)(float32){
 	var balance float32
 	balance=0
@@ -40,6 +56,7 @@ func calculateBalance(incomes []models.Income,expenses []models.Expense)(float32
 func (balanceService BalanceService) CalculateBalanceCreateChart(w http.ResponseWriter,incomes []models.Income,expenses []models.Expense,userid int){
 	balance:=calculateBalance(incomes,expenses)
 	createExpenseChart(userid)
+	createIncomeChart(userid)
 	views.CreateView(w,"static/templates/balance.html",map[string]interface{}{"Balance": balance})
 }
 func  getNumberOfExpensesOfOneCategory(id int,category string)(float64){
@@ -53,6 +70,20 @@ func  getNumberOfExpensesOfOneCategory(id int,category string)(float64){
 		var expense models.Expense
 		res.Scan(&expense.ID, &expense.Description, &expense.Value,&expense.Category, &expense.Userid)
 		cnt=cnt+float64(expense.Value)
+	}
+    return cnt
+}
+func  getNumberOfIncomesOfOneCategory(id int,category string)(float64){
+	var cnt float64
+	res,err:= models.DB.Query(`select * from Income where userid=? and category=?;`,id,category)
+	if err!=nil{
+		
+	}
+	cnt=0
+	for res.Next() {
+		var income models.Income
+		res.Scan(&income.ID, &income.Description, &income.Value,&income.Category, &income.Userid)
+		cnt=cnt+float64(income.Value)
 	}
     return cnt
 }

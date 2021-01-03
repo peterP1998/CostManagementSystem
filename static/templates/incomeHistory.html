@@ -14,6 +14,7 @@
     <li><a onClick="balancePage()">Balance and info</a></li>
     <li><a onClick="expenseHistoryPage()">Expense History</a></li>
     <li><a onClick="incomeHistoryPage()">Income History</a></li>
+    <li><a onClick="donatePage()">Donate Group</a></li>
     <li> <a href="/api/logout">Logout</a></li>
 
 </div>
@@ -21,7 +22,7 @@
 <div class="content"> 
     <h1>All Incomes</h1>   
     {{range .}}
-        <h2>Description:{{.Description}} Value:{{.Value}}</option>
+        <h2>Description:{{.Description}} Value:{{.Value}} Category:{{.Category}}</option>
     {{end}}
 
 </body>
@@ -33,13 +34,16 @@
 	function expensesPage() {
 	  window.location.href="http://localhost:8090/api/expense";
 	}
-    function balancePage() {
+  function balancePage() {
 	  window.location.href="http://localhost:8090/api/balance";
-    }
-    function expenseHistoryPage() {
+  }
+  function expenseHistoryPage() {
 	  window.location.href="http://localhost:8090/api/user/expenses";
-    }
-    function incomeHistoryPage() {
+  }
+  function incomeHistoryPage() {
 	  window.location.href="http://localhost:8090/api/user/incomes";
+  }
+  function donatePage() {
+	  window.location.href="http://localhost:8090/api/group/donate";
 	}
 </script>

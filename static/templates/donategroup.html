@@ -20,11 +20,12 @@
 </ul>
 <div class="content">    
     <form id="donate" method="post" action="/api/group/donate">    
+        <h2>{{.messg}}</h2>
         <label><b>Group name     
         </b>    
         </label>  
         <select id="name" name="name">
-            {{range .}}
+            {{range .group}}
                 <option value="{{.GroupName}}">{{.GroupName}}</option>
             {{end}}
         </select> 

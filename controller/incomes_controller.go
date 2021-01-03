@@ -18,7 +18,7 @@ func (incomeController IncomeController) GetIncomesForUser(w http.ResponseWriter
 	token:=incomeController.accountService.CheckAuthBeforeOperate(r,w)
 	username,_,err:=incomeController.accountService.ParseToken(token.Value)
 	if err!=nil{
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Something went wrong please try again.", http.StatusInternalServerError)
 		return
 	}
 	user,err :=incomeController.userService.SelectUserByName(username)

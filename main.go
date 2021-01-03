@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	fmt.Printf("Starting server at port 8080\n")
+	fmt.Printf("Starting server at port 8090\n")
 	models.DB,_=sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/expenses_system")
 	router := mux.NewRouter()
 	fs := http.FileServer(http.Dir("static"))

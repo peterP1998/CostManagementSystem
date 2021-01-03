@@ -17,6 +17,7 @@ CREATE table Income(
    id int NOT NULL primary key unique auto_increment,
    description varchar(255) not null,
    value double not null,
+   category varchar(255) not null,
    userid int,
    foreign key (userid) references User(id)
 );

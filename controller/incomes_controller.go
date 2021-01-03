@@ -51,7 +51,7 @@ func (incomeController IncomeController)AddIncomeForUser(w http.ResponseWriter, 
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	err = incomeController.incomeService.CreateIncome(user.ID,r.FormValue("description"),i)
+	err = incomeController.incomeService.CreateIncome(user.ID,r.FormValue("description"),i,r.FormValue("category"))
 	if err!=nil{
 		w.WriteHeader(http.StatusInternalServerError)
 		return

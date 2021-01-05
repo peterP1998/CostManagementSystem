@@ -70,7 +70,7 @@ func (groupController GroupController) DeleteGroup(w http.ResponseWriter, r *htt
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	groupController.groupService.DeleteGroup(groupId,w)
+	groupController.groupService.DeleteGroup(groupId)
 }
 
 func (groupController GroupController) DonateMoney(w http.ResponseWriter, r *http.Request){

@@ -23,7 +23,7 @@ func (userController UserController) GetDeleteUserPage(w http.ResponseWriter, r 
 	token:=userController.accountService.CheckAuthBeforeOperate(r,w)
 	username,admin,err:=userController.accountService.ParseToken(token.Value)
 	if admin ==false|| err!=nil{
-		w.WriteHeader(http.StatusUnauthorized)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 	users,err:=userController.userService.SelectAllUsersWithoutAdmins(username)
@@ -70,7 +70,11 @@ func (userController UserController)DeleteUser(w http.ResponseWriter, r *http.Re
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	userController.userService.DeleteUserById(user.ID,w)
+	err=userController.userService.DeleteUserById(user.ID)
+	if err!=nil{
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	http.Redirect(w, r, "/api/account", http.StatusSeeOther)
 }
 func (userController UserController)CreateUser(w http.ResponseWriter, r *http.Request){
@@ -78,7 +82,7 @@ func (userController UserController)CreateUser(w http.ResponseWriter, r *http.Re
 	t, _ := template.ParseFiles("static/templates/createuser.html")
 	errresp := map[string]interface{}{"messg": "Something went wrong!Try again!"}
 	ok := map[string]interface{}{"messg":"User created succesfully"}
-	err:=userController.userService.CreateUser(w,r.FormValue("username"),r.FormValue("email"),r.FormValue("password"),r.FormValue("admin"))
+	err:=userController.userService.CreateUser(r.FormValue("username"),r.FormValue("email"),r.FormValue("password"),r.FormValue("admin"))
 	if err != nil {
         t.Execute(w, errresp)
 		return
@@ -87,9 +91,9 @@ func (userController UserController)CreateUser(w http.ResponseWriter, r *http.Re
 }
 func(userController UserController) RegisterUser(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
-	err:=userController.userService.RegisterUser(w,r.FormValue("username"),r.FormValue("email"),r.FormValue("password"))
+	err:=userController.userService.RegisterUser(r.FormValue("username"),r.FormValue("email"),r.FormValue("password"))
 	if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Something went wrong please try again.", http.StatusInternalServerError)
 		return
 	}
 	http.Redirect(w, r, "/api/login", http.StatusSeeOther)

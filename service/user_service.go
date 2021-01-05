@@ -1,126 +1,110 @@
 package service
+
 import (
-	"github.com/peterP1998/CostManagementSystem/models"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"strings"
-	"strconv"
-	"net/http"
+	"github.com/peterP1998/CostManagementSystem/models"
 	"golang.org/x/crypto/bcrypt"
 )
-type UserService struct {
 
+type UserService struct {
 }
-func (userService UserService)SelectUserByName(username string)(models.User,error){
+
+func (userService UserService) SelectUserByName(username string) (models.User, error) {
 	var user models.User
-	err:=models.DB.QueryRow("SELECT * FROM User where username=?",username).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
-	if err!=nil{
-		return user,err
-	}
-	return user,nil
-}
-func (userService UserService)SelectAllUsers()([]models.User,error){
-	res,err:=selectAllUsersDB()
+	err := models.DB.QueryRow("SELECT * FROM User where username=?", username).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
 	if err != nil {
-		return nil,err
+		return user, err
+	}
+	return user, nil
+}
+func (userService UserService) SelectAllUsers() ([]models.User, error) {
+	res, err := selectAllUsersDB()
+	if err != nil {
+		return nil, err
 	}
 	defer res.Close()
 	users := readUsersFromDB(res)
-	return users,nil
+	return users, nil
 }
-func selectAllUsersDB()(*sql.Rows,error){
-    res, err := models.DB.Query("SELECT * FROM User")
+func selectAllUsersDB() (*sql.Rows, error) {
+	res, err := models.DB.Query("SELECT * FROM User")
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
-	return res,nil
+	return res, nil
 }
-func readUsersFromDB(res *sql.Rows)([]models.User){
+func readUsersFromDB(res *sql.Rows) []models.User {
 	users := make([]models.User, 0)
-    for res.Next() {
+	for res.Next() {
 		var user models.User
 		res.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
 		users = append(users, user)
 	}
 	return users
 }
-func (userService UserService)SplitUrlUser(r *http.Request)(int,error){
-	p := strings.Split(r.URL.Path, "/user/")
-	userId,err:=strconv.Atoi(p[len(p)-1])
-	return userId,err
-}
-func(userService UserService) SelectUserById(userId int)(models.User,error){
-	var user models.User
-	err :=models.DB.QueryRow("select * from User where id=?;",userId).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
-	return user,err
-}
-func (userService UserService) SelectAllUsersWithoutAdmins(username string)([]models.User,error){
-	users,err:=userService.SelectAllUsers()
+
+func (userService UserService) SelectAllUsersWithoutAdmins(username string) ([]models.User, error) {
+	users, err := userService.SelectAllUsers()
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
-	users_without_admins:=make([]models.User, 0)
+	users_without_admins := make([]models.User, 0)
 	for _, v := range users {
-        if v.Name!=username&&v.Admin==false{
+		if v.Name != username && v.Admin == false {
 			users_without_admins = append(users_without_admins, v)
 		}
 	}
-	return users_without_admins,nil
+	return users_without_admins, nil
 }
-func(userService UserService) DeleteUserById(userId int,w http.ResponseWriter){
-	_,err :=models.DB.Query("delete from Expense where userid=?;",userId)
+func (userService UserService) DeleteUserById(userId int) error {
+	err := DeleteExpense(userId)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return err
 	}
-	_,err =models.DB.Query("delete from Income where userid=?;",userId)
+	err = DeleteIncome(userId)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return err
 	}
-	_,err =models.DB.Query("delete from User where id=?;",userId)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-}
-func (userService UserService)RegisterUser(w http.ResponseWriter, name string,email string,password string)(error){
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-    if err != nil {
-        return err
-	}
-	err=registerUserDB(w,name,email,string(hashedPassword))
-	if err != nil {
-        return err
-	}
-	return nil
-}
-func registerUserDB(w http.ResponseWriter, name string,email string,password string)(error){
-	_,err :=models.DB.Query("insert into User(username,email,password,admin) Values(?,?,?,?);",name,email,password,false)
+	_, err = models.DB.Query("delete from User where id=?;", userId)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func createUserDB(w http.ResponseWriter, name string,email string,password string,admin bool)(error){
-	_,err :=models.DB.Query("insert into User(username,email,password,admin) Values(?,?,?,?);",name,email,password,admin)
+func (userService UserService) RegisterUser(name string, email string, password string) error {
+	err := createUser(name, email, password, false)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func (userService UserService)CreateUser(w http.ResponseWriter, name string,email string,password string,admin string)(error){
+func createUserDB(name string, email string, password string, admin bool) error {
+	_, err := models.DB.Query("insert into User(username,email,password,admin) Values(?,?,?,?);", name, email, password, admin)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func createUser(name string, email string, password string, admin bool) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-       return err
+		return err
 	}
-	adminval:=false
-	if admin=="yes"{
-		adminval=true
-	}
-	err=createUserDB(w,name,email,string(hashedPassword),adminval)
+	err = createUserDB(name, email, string(hashedPassword), admin)
 	if err != nil {
 		return err
 	}
-    return nil
+	return nil
+}
+func (userService UserService) CreateUser(name string, email string, password string, admin string) error {
+	adminval := false
+	if admin == "yes" {
+		adminval = true
+	}
+	err := createUser(name, email, password, adminval)
+	if err != nil {
+		return err
+	}
+	return nil
 }

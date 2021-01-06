@@ -5,6 +5,7 @@ import (
 	"github.com/peterP1998/CostManagementSystem/service"
 	"strconv"
 	"github.com/peterP1998/CostManagementSystem/views"
+	"github.com/peterP1998/CostManagementSystem/utils"
 )
 type IncomeController struct {
 	accountService service.AccountService
@@ -17,44 +18,23 @@ func (incomeController IncomeController)IncomePage(w http.ResponseWriter, r *htt
 func (incomeController IncomeController) GetIncomesForUser(w http.ResponseWriter, r *http.Request){
 	token:=incomeController.accountService.CheckAuthBeforeOperate(r,w)
 	username,_,err:=incomeController.accountService.ParseToken(token.Value)
-	if err!=nil{
-		http.Error(w, "Something went wrong please try again.", http.StatusInternalServerError)
-		return
-	}
+	utils.InternalServerError(err,w)
 	user,err :=incomeController.userService.SelectUserByName(username)
-	if err != nil {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	}
+	utils.UserNotFound(err,w)
 	incomes,err := service.SelectAllIncomesForUser(user.ID)
-	if err != nil {
-		http.Error(w, "Something went wrong please try again.", http.StatusInternalServerError)
-		return
-	}
+	utils.InternalServerError(err,w)
 	views.CreateView(w,"static/templates/incomeHistory.html",incomes)
 }
 func (incomeController IncomeController)AddIncomeForUser(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
     token:=incomeController.accountService.CheckAuthBeforeOperate(r,w)
 	username,_,err:=incomeController.accountService.ParseToken(token.Value)
-	if err!=nil{
-		http.Error(w, "Something went wrong please try again.", http.StatusInternalServerError)
-		return
-	}
+	utils.InternalServerError(err,w)
 	user,err :=incomeController.userService.SelectUserByName(username)
-	if err != nil {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	}
+	utils.UserNotFound(err,w)
 	i, err := strconv.Atoi(r.FormValue("value"))
-	if err!=nil{
-		http.Error(w, "Something went wrong please try again.", http.StatusInternalServerError)
-		return
-	}
+	utils.InternalServerError(err,w)
 	err = incomeController.incomeService.CreateIncome(user.ID,r.FormValue("description"),i,r.FormValue("category"))
-	if err!=nil{
-		http.Error(w, "Something went wrong please try again.", http.StatusInternalServerError)
-		return
-	}
+	utils.InternalServerError(err,w)
 	http.Redirect(w, r, "/api/account", http.StatusSeeOther)
 }

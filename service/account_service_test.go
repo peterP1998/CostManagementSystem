@@ -2,13 +2,36 @@ package service
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/peterP1998/CostManagementSystem/models"
 	"testing"
 )
-func TestParseToken(t *testing.T){
+
+func TestTokenFunctions(t *testing.T){
+	claims:=testConfigureToken(t)
+	token:=testCreateToken(t,claims)
+	testParseToken(t,token)
+}
+
+func testParseToken(t *testing.T,token string){
 	var accountService AccountService
-	token:="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBlcGkiLCJleHAiOjE2MDk5Njg1MDksImFkbWluIjp0cnVlfQ.xLcyc_3aE09756PgdK1kKatPtpj_ZtuD1g_eUV9_BLM"
 	_,_,err:=accountService.ParseToken(token)
 	assert.Equal(t, err, nil, "Error should be nill")
     _,_,err=accountService.ParseToken(token+"/")
 	assert.NotEqual(t, err, nil, "Error should be nill")
+}
+
+func testConfigureToken(t *testing.T)(*models.Claims){
+	var user models.User
+	user.Name="test"
+	user.Admin=false
+	claims,_:=configureToken(user)
+	assert.Equal(t, "test", claims.Username, "ConfigureToken not working")
+	assert.Equal(t, false, claims.Admin, "ConfigureToken not working")
+    return claims
+}
+
+func testCreateToken(t *testing.T,claims *models.Claims)(string){
+	token,err:=createToken(claims)
+	assert.Equal(t, err, nil, "Error should be nill")
+	return token
 }

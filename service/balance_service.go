@@ -23,11 +23,11 @@ func createExpenseChart(userid int) {
 		Width:  256,
 		Height: 256,
 		Values: []chart.Value{
-			{Value: getNumberOfExpensesOfOneCategory(userid, "Clothes"), Label: "Clothes"},
-			{Value: getNumberOfExpensesOfOneCategory(userid, "Rent"), Label: "Rent"},
-			{Value: getNumberOfExpensesOfOneCategory(userid, "Food"), Label: "Food"},
-			{Value: getNumberOfExpensesOfOneCategory(userid, "Bills"), Label: "Bills"},
-			{Value: getNumberOfExpensesOfOneCategory(userid, "other"), Label: "Other"},
+			{Value: getValueOfExpensesOfOneCategory(userid, "Clothes"), Label: "Clothes"},
+			{Value: getValueOfExpensesOfOneCategory(userid, "Rent"), Label: "Rent"},
+			{Value: getValueOfExpensesOfOneCategory(userid, "Food"), Label: "Food"},
+			{Value: getValueOfExpensesOfOneCategory(userid, "Bills"), Label: "Bills"},
+			{Value: getValueOfExpensesOfOneCategory(userid, "other"), Label: "Other"},
 		},
 	}
 
@@ -40,10 +40,10 @@ func createIncomeChart(userid int) {
 		Width:  256,
 		Height: 256,
 		Values: []chart.Value{
-			{Value: getNumberOfIncomesOfOneCategory(userid, "Salary"), Label: "Salary"},
-			{Value: getNumberOfIncomesOfOneCategory(userid, "Gift"), Label: "Gift"},
-			{Value: getNumberOfIncomesOfOneCategory(userid, "Found"), Label: "Found"},
-			{Value: getNumberOfIncomesOfOneCategory(userid, "Sell"), Label: "Sell"},
+			{Value: getValueOfIncomesOfOneCategory(userid, "Salary"), Label: "Salary"},
+			{Value: getValueOfIncomesOfOneCategory(userid, "Gift"), Label: "Gift"},
+			{Value: getValueOfIncomesOfOneCategory(userid, "Found"), Label: "Found"},
+			{Value: getValueOfIncomesOfOneCategory(userid, "Sell"), Label: "Sell"},
 		},
 	}
 
@@ -62,12 +62,9 @@ func calculateBalance(incomes []models.Income, expenses []models.Expense) float3
 	}
 	return balance
 }
-func getNumberOfExpensesOfOneCategory(id int, category string) float64 {
+func getValueOfExpensesOfOneCategory(id int, category string) float64 {
 	var cnt float64
-	res, err := models.DB.Query(`select * from Expense where userid=? and category=?;`, id, category)
-	if err != nil {
-
-	}
+	res, _ := models.DB.Query(`select * from Expense where userid=? and category=?;`, id, category)
 	cnt = 0
 	for res.Next() {
 		var expense models.Expense
@@ -76,12 +73,9 @@ func getNumberOfExpensesOfOneCategory(id int, category string) float64 {
 	}
 	return cnt
 }
-func getNumberOfIncomesOfOneCategory(id int, category string) float64 {
+func getValueOfIncomesOfOneCategory(id int, category string) float64 {
 	var cnt float64
-	res, err := models.DB.Query(`select * from Income where userid=? and category=?;`, id, category)
-	if err != nil {
-
-	}
+	res, _ := models.DB.Query(`select * from Income where userid=? and category=?;`, id, category)
 	cnt = 0
 	for res.Next() {
 		var income models.Income

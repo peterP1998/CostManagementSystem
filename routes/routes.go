@@ -51,7 +51,6 @@ func (route Route) GroupRoutes(router *mux.Router) {
 	//router.HandleFunc("/api/group/{id:[0-9]+}", route.groupController.GetGroup).Methods("GET")
 	router.HandleFunc("/api/group",  route.groupController.CreateGroup).Methods("POST")
 	router.HandleFunc("/api/group/create",  route.groupController.GetCreateGroupPage).Methods("GET")
-	router.HandleFunc("/api/group/{id:[0-9]+}",  route.groupController.DeleteGroup).Methods("DELETE")
 	router.HandleFunc("/api/group/donate",  route.groupController.GetDonateGroupPage).Methods("GET")
     router.HandleFunc("/api/group/donate",  route.groupController.DonateMoney).Methods("POST")
 	

@@ -31,12 +31,22 @@ func (userController UserController) GetDeleteUserPage(w http.ResponseWriter, r 
 	}
 	users,err:=userController.userService.SelectAllUsersWithoutAdmins(username)
 	utils.InternalServerError(err,w)
-	err=views.CreateView(w,"static/templates/deleteuser.html",users)
+	usersmap:=map[string]interface{}{
+		"messg":"",
+		"users":users,
+	}
+	err=views.CreateView(w,"static/templates/deleteuser.html",usersmap)
 	utils.InternalServerError(err,w)
 }
 
 func (userController UserController)DeleteUser(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
+	users,err:=userController.userService.SelectAllUsersWithoutAdmins(r.FormValue("name"))
+	errresp := map[string]interface{}{"users":users,"messg": "Something went wrong!Try again!"}
+	okresp:=map[string]interface{}{"users":users,"messg": "User deleted succesfully!"}
+	if err!=nil{
+		views.CreateView(w,"static/templates/deleteuser.html",errresp)
+	}
 	token:=userController.accountService.CheckAuthBeforeOperate(r,w)
 	_,admin,err:=userController.accountService.ParseToken(token.Value)
 	if admin ==false|| err!=nil{
@@ -44,10 +54,14 @@ func (userController UserController)DeleteUser(w http.ResponseWriter, r *http.Re
 		return
 	}
 	user,err:=userController.userService.SelectUserByName(r.FormValue("name"))
-	utils.InternalServerError(err,w)
+	if err!=nil{
+		views.CreateView(w,"static/templates/deleteuser.html",errresp)
+	}
 	err=userController.userService.DeleteUserById(user.ID)
-	utils.InternalServerError(err,w)
-	http.Redirect(w, r, "/api/account", http.StatusSeeOther)
+	if err!=nil{
+		views.CreateView(w,"static/templates/deleteuser.html",errresp)
+	}
+	views.CreateView(w,"static/templates/deleteuser.html",okresp)
 }
 func (userController UserController)CreateUser(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()

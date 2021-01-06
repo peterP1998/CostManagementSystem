@@ -14,7 +14,6 @@ type ExpenseController struct {
 }
 func (expenseController ExpenseController) ExpensePage(w http.ResponseWriter, r *http.Request){
 	views.CreateView(w,"static/templates/expenses.html",nil)
-
 }
 func (expenseController ExpenseController) GetExpenesesForUser(w http.ResponseWriter, r *http.Request){
 	token:=expenseController.accountService.CheckAuthBeforeOperate(r,w)
@@ -28,14 +27,24 @@ func (expenseController ExpenseController) GetExpenesesForUser(w http.ResponseWr
 }
 func (expenseController ExpenseController)AddExpenseForUser(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
+	errresp := map[string]interface{}{"messg": "Something went wrong!Try again!"}
+	okresp:= map[string]interface{}{"messg": "Expense Created!"}
     token:=expenseController.accountService.CheckAuthBeforeOperate(r,w)
 	username,_,err:=expenseController.accountService.ParseToken(token.Value)
-	utils.InternalServerError(err,w)
+	if err!=nil{
+		views.CreateView(w,"static/templates/expenses.html",errresp)
+	}
 	user,err :=expenseController.userService.SelectUserByName(username)
-	utils.UserNotFound(err,w)
+	if err!=nil{
+		views.CreateView(w,"static/templates/expenses.html",errresp)
+	}
 	i, err := strconv.Atoi(r.FormValue("value"))
-	utils.InternalServerError(err,w)
+	if err!=nil{
+		views.CreateView(w,"static/templates/expenses.html",errresp)
+	}
 	err=expenseController.expenseService.CreateExpense(user.ID,r.FormValue("description"),i,r.FormValue("category"))
-	utils.InternalServerError(err,w)
-	http.Redirect(w, r, "/api/account", http.StatusSeeOther)
+	if err!=nil{
+		views.CreateView(w,"static/templates/expenses.html",errresp)
+	}
+	views.CreateView(w,"static/templates/expenses.html",okresp)
 }

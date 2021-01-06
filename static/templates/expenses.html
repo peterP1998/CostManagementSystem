@@ -14,11 +14,13 @@
     <li><a onClick="balancePage()">Balance and info</a></li>
     <li><a onClick="expenseHistoryPage()">Expense History</a></li>
     <li><a onClick="incomeHistoryPage()">Income History</a></li>
+    <li><a onClick="donatePage()">Donate Group</a></li>
     <li> <a href="/api/logout">Logout</a></li>
 
 </div>
 </ul>
-<div class="content">    
+<div class="content"> 
+  <h2>{{.messg}}</h2>   
     <form id="expenses" method="post" action="/api/user/expenses">    
         <label><b>Description     
         </b>    
@@ -65,5 +67,8 @@
   }
   function incomeHistoryPage() {
 	  window.location.href="http://localhost:8090/api/user/incomes";
+	}
+  function donatePage() {
+	  window.location.href="http://localhost:8090/api/group/donate";
 	}
 </script>

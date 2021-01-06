@@ -4,6 +4,7 @@ package controller
 import (
 	"net/http"
 	"github.com/peterP1998/CostManagementSystem/service"
+	"github.com/peterP1998/CostManagementSystem/utils"
 )
 type BalanceController struct {
 	accountService service.AccountService
@@ -13,15 +14,9 @@ type BalanceController struct {
 func (balance *BalanceController) GetBalanceForUser(w http.ResponseWriter, r *http.Request){
 	token:=balance.accountService.CheckAuthBeforeOperate(r,w)
 	username,_,err:=balance.accountService.ParseToken(token.Value)
-	if err!=nil{
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	utils.InternalServerError(err,w)
 	user,err :=balance.userService.SelectUserByName(username)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	utils.InternalServerError(err,w)
 	incomes,err := service.SelectAllIncomesForUser(user.ID)
 	expenses,err := service.SelectAllExpensesForUser(user.ID)
 	balance.balanceService.CalculateBalanceCreateChart(w,incomes,expenses,user.ID)

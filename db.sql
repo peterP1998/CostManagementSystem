@@ -24,7 +24,7 @@ CREATE table Income(
 create table Groupp(
    id int NOT NULL primary key unique auto_increment,
    groupname varchar(255) not null unique,
-   moneybynow double not null unique,
+   moneybynow double not null,
    targetmoney double not null
 );
 CREATE TABLE user_group(

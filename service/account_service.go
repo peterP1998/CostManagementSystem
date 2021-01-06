@@ -33,12 +33,6 @@ func (account AccountService) CheckAuthBeforeOperate(r *http.Request, w http.Res
 	authorizationResponses(w, err, r)
 	return token
 }
-func (account AccountService) CheckAdminPermission(admin bool, w http.ResponseWriter) {
-	if admin == false {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-}
 func (account AccountService) Login(password string, username string, w http.ResponseWriter) {
 	user, err := account.userService.SelectUserByName(username)
 	if err != nil {

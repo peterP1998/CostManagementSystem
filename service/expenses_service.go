@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/peterP1998/CostManagementSystem/models"
+	"errors"
 )
 
 type ExpenseService struct {
@@ -21,7 +22,11 @@ func SelectAllExpensesForUser(id int) ([]models.Expense, error) {
 	return expenses, nil
 }
 func (expenseService ExpenseService) CreateExpense(id int, desc string, value int, category string) error {
-	_, err := models.DB.Query("insert into Expense(description,value,category,userid) Values(?,?,?,?);", desc, value, category, id)
+	err := BalanceForNewExpense(id,value)
+	if err != nil {
+		return err
+	}
+	_, err= models.DB.Query("insert into Expense(description,value,category,userid) Values(?,?,?,?);", desc, value, category, id)
 	if err != nil {
 		return err
 	}
@@ -31,6 +36,21 @@ func DeleteExpense(userId int)(error){
 	_, err := models.DB.Query("delete from Expense where userid=?;", userId)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+func BalanceForNewExpense(id int,value int)error{
+	incomes,err := SelectAllIncomesForUser(id)
+	if err != nil {
+		return err
+	}
+	expenses,err := SelectAllExpensesForUser(id)
+	if err != nil {
+		return err
+	}
+	balance:=CalculateBalance(incomes,expenses)
+	if int(balance)-value<0{
+		return errors.New("Not enough money")
 	}
 	return nil
 }

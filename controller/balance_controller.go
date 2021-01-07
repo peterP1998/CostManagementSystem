@@ -18,6 +18,8 @@ func (balance *BalanceController) GetBalanceForUser(w http.ResponseWriter, r *ht
 	user,err :=balance.userService.SelectUserByName(username)
 	utils.InternalServerError(err,w)
 	incomes,err := service.SelectAllIncomesForUser(user.ID)
+	utils.InternalServerError(err,w)
 	expenses,err := service.SelectAllExpensesForUser(user.ID)
+	utils.InternalServerError(err,w)
 	balance.balanceService.CalculateBalanceCreateChart(w,incomes,expenses,user.ID)
 }

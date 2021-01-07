@@ -13,7 +13,7 @@ type BalanceService struct {
 
 
 func (balanceService BalanceService) CalculateBalanceCreateChart(w http.ResponseWriter, incomes []models.Income, expenses []models.Expense, userid int) {
-	balance := calculateBalance(incomes, expenses)
+	balance := CalculateBalance(incomes, expenses)
 	createExpenseChart(userid)
 	createIncomeChart(userid)
 	views.CreateView(w, "static/templates/balance.html", map[string]interface{}{"Balance": balance})
@@ -51,7 +51,7 @@ func createIncomeChart(userid int) {
 	defer f.Close()
 	pie.Render(chart.PNG, f)
 }
-func calculateBalance(incomes []models.Income, expenses []models.Expense) float32 {
+func CalculateBalance(incomes []models.Income, expenses []models.Expense) float32 {
 	var balance float32
 	balance = 0
 	for _, s := range incomes {

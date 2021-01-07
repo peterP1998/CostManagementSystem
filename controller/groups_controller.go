@@ -80,12 +80,21 @@ func (groupController GroupController) DonateMoney(w http.ResponseWriter, r *htt
 	}else{
         group.MoneyByNow=group.MoneyByNow+float64(i)
 	}
+	err=groupController.expenseService.CreateExpense(user.ID,"Group donate",i,"Other")
+	if err!=nil{
+	    if err.Error()=="Not enough money"{
+		    views.CreateView(w,"static/templates/donategroup.html",map[string]interface{}{"group":groups,"messg": "Not enough money!"})
+			return
+		}else{
+			views.CreateView(w,"static/templates/expenses.html",errresp)
+			return 
+		}
+	}
 	err=groupController.groupService.UpdateGroupMoney(group.ID,int(group.MoneyByNow))
 	if err != nil {
 		views.CreateView(w,"static/templates/donategroup.html",errresp)
 	    return
 	}
-	groupController.expenseService.CreateExpense(user.ID,"Group donate",i,"Other")
 	ok := map[string]interface{}{"group":groups,"messg":messg}
 	views.CreateView(w,"static/templates/donategroup.html",ok)
 }

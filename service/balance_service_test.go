@@ -14,7 +14,7 @@ func TestGetNumberOfExpensesAndIncomes(t *testing.T){
 	err=expenseService.CreateExpense(user.ID,"test",3,"Other")
 	cnt:=getValueOfExpensesOfOneCategory(user.ID,"Other")
 	assert.Equal(t, 3.0, cnt, "Error should be nill")
-	cntIncomes:=getValueOfExpensesOfOneCategory(user.ID,"Salary")
+	cntIncomes:=getValueOfIncomesOfOneCategory(user.ID,"Salary")
 	assert.Equal(t, 3.0, cntIncomes, "Error should be nill")
 	err=DeleteIncome(user.ID)
 	assert.Equal(t, err, nil, "Error should be nill")
@@ -25,7 +25,7 @@ func TestGetNumberOfExpensesAndIncomes(t *testing.T){
 func TestBalance(t *testing.T){
 	incomes := makeIncomesArrary()
 	expenses := makeExpensesArrary()
-	balance:=calculateBalance(incomes,expenses)
+	balance:=CalculateBalance(incomes,expenses)
 	assert.Equal(t, float32(1), balance, "Wrong wroking balanc function")
 }
 

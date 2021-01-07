@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"github.com/peterP1998/CostManagementSystem/views"
 	"github.com/peterP1998/CostManagementSystem/utils"
+	///"errors"
 )
 type ExpenseController struct {
 	accountService service.AccountService
@@ -44,7 +45,13 @@ func (expenseController ExpenseController)AddExpenseForUser(w http.ResponseWrite
 	}
 	err=expenseController.expenseService.CreateExpense(user.ID,r.FormValue("description"),i,r.FormValue("category"))
 	if err!=nil{
-		views.CreateView(w,"static/templates/expenses.html",errresp)
+	    if err.Error()=="Not enough money"{
+		    views.CreateView(w,"static/templates/expenses.html",map[string]interface{}{"messg": "Not enough money"})
+			return
+		}else{
+			views.CreateView(w,"static/templates/expenses.html",errresp)
+			return 
+		}
 	}
 	views.CreateView(w,"static/templates/expenses.html",okresp)
 }

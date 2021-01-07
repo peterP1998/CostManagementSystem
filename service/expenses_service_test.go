@@ -11,12 +11,12 @@ func TestCreateSelectDeleteExpense(t *testing.T){
 	assert.Equal(t, err, nil, "Error should be nill")
 	assert.Equal(t, user.Name, "test", "Select not working correctly")
 	var expenseService ExpenseService
-	err=expenseService.CreateExpense(user.ID,"test",3,"Food")
+	err=expenseService.CreateExpense(user.ID,"test",0,"Food")
 	assert.Equal(t, err, nil, "Error should be nill")
 	expenses,err:=SelectAllExpensesForUser(user.ID)
 	flag := false
 	for _, b := range expenses {
-		if b.Description == "test" && b.Value==3 && b.Category=="Food" {
+		if b.Description == "test" && b.Value==0 && b.Category=="Food" {
 			flag = true
 		}
 	}

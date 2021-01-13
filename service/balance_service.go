@@ -16,7 +16,7 @@ func (balanceService BalanceService) CalculateBalanceCreateChart(w http.Response
 	balance := CalculateBalance(incomes, expenses)
 	createExpenseChart(userid)
 	createIncomeChart(userid)
-	views.CreateView(w, "static/templates/balance.html", map[string]interface{}{"Balance": balance})
+	views.CreateView(w, "static/templates/balance/balance.html", map[string]interface{}{"Balance": balance})
 }
 func createExpenseChart(userid int) {
 	pie := chart.PieChart{

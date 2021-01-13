@@ -36,17 +36,17 @@ func (account AccountService) CheckAuthBeforeOperate(r *http.Request, w http.Res
 func (account AccountService) Login(password string, username string, w http.ResponseWriter) {
 	user, err := account.userService.SelectUserByName(username)
 	if err != nil {
-		views.CreateView(w, "static/templates/index.html", map[string]interface{}{"messg": "Wrong username or password!"})
+		views.CreateView(w, "static/templates/accounts/index.html", map[string]interface{}{"messg": "Wrong username or password!"})
 		return
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		views.CreateView(w, "static/templates/index.html", map[string]interface{}{"messg": "Wrong username or password!"})
+		views.CreateView(w, "static/templates/accounts/index.html", map[string]interface{}{"messg": "Wrong username or password!"})
 		return
 	}
 	err = createAndConfigureToken(user, w)
 	if err != nil {
-		views.CreateView(w, "static/templates/index.html", map[string]interface{}{"messg": "Something went wrong please try againg!"})
+		views.CreateView(w, "static/templates/accounts/index.html", map[string]interface{}{"messg": "Something went wrong please try againg!"})
 	}
 }
 func createAndConfigureToken(user models.User, w http.ResponseWriter) error {

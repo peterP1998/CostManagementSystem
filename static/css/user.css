@@ -41,12 +41,7 @@ float:left;
 	padding:5px;
 
 }
-.content {
-    font-family: verdana;
-    color:black;
-    margin: 20% 0 0 15%;
-     text-align:center;
-}
+
 
 h1{
 
@@ -69,10 +64,9 @@ p2{
     	min-width: 400px;
     	height:100%;
     }
- .content {
-   margin-top:20%;
-           margin-left: 0;
-     
+    .content {
+        margin-top:20%;
+        margin-left: 0;  
     }
     h1{
         font-size: 3em;
@@ -83,9 +77,9 @@ p2{
     p2{
         display:none;
 	}
-.social{
-	position:relative;
-}
+    .social{
+	    position:relative;
+    }
     ul.navbar {
         max-width: 900px;
         width: 100%;
@@ -106,33 +100,3 @@ ul.navbar li.socialmedia{
 }
 }
 
-@media only screen and (max-width: 500px) {
-    body {
-    	background-size: 900px, 100%;
-        max-width: 400px;    
-    }
-    .content {
-padding:10px;
-    	margin-top:45%
-    }
- h1{ 
-    display:none;
-    font-size: 25px;    
-}
-p{
-    	 display:none;
-        font-size: 20px; 
-}    
-p2{
-    font-size: 45px;
-	display:block;
-	
-	text-shadow: 1px 5px  10px lightgrey;
-}
-ul.navbar{
-	float:none
-}
-.socialmedia{
-    display:none;
-}
-}

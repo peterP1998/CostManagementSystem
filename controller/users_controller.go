@@ -11,15 +11,15 @@ type UserController struct {
 	userService service.UserService
 }
 func (userController UserController)GetUserAcc(w http.ResponseWriter, r *http.Request){
-	err:=views.CreateView(w,"static/templates/user.html",nil)
+	err:=views.CreateView(w,"static/templates/accounts/user.html",nil)
 	utils.InternalServerError(err,w)
 }
 func (userController UserController)GetAdminAcc(w http.ResponseWriter, r *http.Request){
-	err:=views.CreateView(w,"static/templates/admin.html",nil)
+	err:=views.CreateView(w,"static/templates/accounts/admin.html",nil)
 	utils.InternalServerError(err,w)
 }
 func (userController UserController)GetCreateUserPage(w http.ResponseWriter, r *http.Request){
-	err:=views.CreateView(w,"static/templates/createuser.html",nil)
+	err:=views.CreateView(w,"static/templates/user/createuser.html",nil)
     utils.InternalServerError(err,w)
 }
 func (userController UserController) GetDeleteUserPage(w http.ResponseWriter, r *http.Request){
@@ -35,7 +35,7 @@ func (userController UserController) GetDeleteUserPage(w http.ResponseWriter, r 
 		"messg":"",
 		"users":users,
 	}
-	err=views.CreateView(w,"static/templates/deleteuser.html",usersmap)
+	err=views.CreateView(w,"static/templates/user/deleteuser.html",usersmap)
 	utils.InternalServerError(err,w)
 }
 
@@ -45,7 +45,7 @@ func (userController UserController)DeleteUser(w http.ResponseWriter, r *http.Re
 	errresp := map[string]interface{}{"users":users,"messg": "Something went wrong!Try again!"}
 	okresp:=map[string]interface{}{"users":users,"messg": "User deleted succesfully!"}
 	if err!=nil{
-		views.CreateView(w,"static/templates/deleteuser.html",errresp)
+		views.CreateView(w,"static/templates/user/deleteuser.html",errresp)
 	}
 	token:=userController.accountService.CheckAuthBeforeOperate(r,w)
 	_,admin,err:=userController.accountService.ParseToken(token.Value)
@@ -55,13 +55,13 @@ func (userController UserController)DeleteUser(w http.ResponseWriter, r *http.Re
 	}
 	user,err:=userController.userService.SelectUserByName(r.FormValue("name"))
 	if err!=nil{
-		views.CreateView(w,"static/templates/deleteuser.html",errresp)
+		views.CreateView(w,"static/templates/user/deleteuser.html",errresp)
 	}
 	err=userController.userService.DeleteUserById(user.ID)
 	if err!=nil{
-		views.CreateView(w,"static/templates/deleteuser.html",errresp)
+		views.CreateView(w,"static/templates/user/deleteuser.html",errresp)
 	}
-	views.CreateView(w,"static/templates/deleteuser.html",okresp)
+	views.CreateView(w,"static/templates/user/deleteuser.html",okresp)
 }
 func (userController UserController)CreateUser(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
@@ -69,11 +69,11 @@ func (userController UserController)CreateUser(w http.ResponseWriter, r *http.Re
 	ok := map[string]interface{}{"messg":"User created succesfully"}
 	err:=userController.userService.CreateUser(r.FormValue("username"),r.FormValue("email"),r.FormValue("password"),r.FormValue("admin"))
 	if err != nil {
-		err=views.CreateView(w,"static/templates/createuser.html",errresp)
+		err=views.CreateView(w,"static/templates/user/createuser.html",errresp)
 		utils.InternalServerError(err,w)
 		return
 	}
-	err=views.CreateView(w,"static/templates/createuser.html",ok)
+	err=views.CreateView(w,"static/templates/user/createuser.html",ok)
 	utils.InternalServerError(err,w)
 }
 func(userController UserController) RegisterUser(w http.ResponseWriter, r *http.Request){

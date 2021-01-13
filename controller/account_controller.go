@@ -10,13 +10,13 @@ type AccountController struct {
     account service.AccountService
 }
 func (controller AccountController) GetLoginForm(w http.ResponseWriter, r *http.Request){
-	views.CreateView(w,"static/templates/index.html",nil)
+	views.CreateView(w,"static/templates/accounts/index.html",nil)
 }
 func (controller AccountController)Welcome(w http.ResponseWriter, r *http.Request){
 	views.CreateView(w,"static/templates/welcome.html",nil)
 }
 func (controller AccountController) GetRegister(w http.ResponseWriter, r *http.Request){
-	views.CreateView(w,"static/templates/signup.html",nil)
+	views.CreateView(w,"static/templates/accounts/signup.html",nil)
 }
 func (controller AccountController) Account(w http.ResponseWriter, r *http.Request){
 	token:=controller.account.CheckAuthBeforeOperate(r,w)
@@ -25,9 +25,9 @@ func (controller AccountController) Account(w http.ResponseWriter, r *http.Reque
         http.Redirect(w, r, "/api/login", http.StatusSeeOther)
 	}
 	if admin ==false{
-		views.CreateView(w,"static/templates/user.html",nil)
+		views.CreateView(w,"static/templates/accounts/user.html",nil)
 	}else {
-		views.CreateView(w,"static/templates/admin.html",nil)
+		views.CreateView(w,"static/templates/accounts/admin.html",nil)
 	}
 }
 func (controller AccountController) Signin(w http.ResponseWriter, r *http.Request) {

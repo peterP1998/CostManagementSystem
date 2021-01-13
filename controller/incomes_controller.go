@@ -13,7 +13,7 @@ type IncomeController struct {
 	userService service.UserService
 }
 func (incomeController IncomeController)IncomePage(w http.ResponseWriter, r *http.Request){
-	views.CreateView(w,"static/templates/income.html",nil)
+	views.CreateView(w,"static/templates/income/income.html",nil)
 }
 func (incomeController IncomeController) GetIncomesForUser(w http.ResponseWriter, r *http.Request){
 	token:=incomeController.accountService.CheckAuthBeforeOperate(r,w)
@@ -23,7 +23,7 @@ func (incomeController IncomeController) GetIncomesForUser(w http.ResponseWriter
 	utils.UserNotFound(err,w)
 	incomes,err := service.SelectAllIncomesForUser(user.ID)
 	utils.InternalServerError(err,w)
-	views.CreateView(w,"static/templates/incomeHistory.html",incomes)
+	views.CreateView(w,"static/templates/income/incomeHistory.html",incomes)
 }
 func (incomeController IncomeController)AddIncomeForUser(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
@@ -32,19 +32,19 @@ func (incomeController IncomeController)AddIncomeForUser(w http.ResponseWriter, 
 	errresp := map[string]interface{}{"messg": "Something went wrong!Try again!"}
 	okresp:= map[string]interface{}{"messg": "Income Created!"}
 	if err!=nil{
-		views.CreateView(w,"static/templates/income.html",errresp)
+		views.CreateView(w,"static/templates/income/income.html",errresp)
 	}
 	user,err :=incomeController.userService.SelectUserByName(username)
 	if err!=nil{
-		views.CreateView(w,"static/templates/income.html",errresp)
+		views.CreateView(w,"static/templates/income/income.html",errresp)
 	}
 	i, err := strconv.Atoi(r.FormValue("value"))
 	if err!=nil{
-		views.CreateView(w,"static/templates/income.html",errresp)
+		views.CreateView(w,"static/templates/income/income.html",errresp)
 	}
 	err = incomeController.incomeService.CreateIncome(user.ID,r.FormValue("description"),i,r.FormValue("category"))
 	if err!=nil{
-		views.CreateView(w,"static/templates/income.html",errresp)
+		views.CreateView(w,"static/templates/income/income.html",errresp)
 	}
-	views.CreateView(w,"static/templates/income.html",okresp)
+	views.CreateView(w,"static/templates/income/income.html",okresp)
 }

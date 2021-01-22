@@ -5,7 +5,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/peterP1998/CostManagementSystem/models"
 	"github.com/stretchr/testify/assert"
-	"log"
 	"os"
 	"testing"
 )
@@ -14,7 +13,6 @@ func TestMain(m *testing.M) {
 	models.DB, _ = sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/expenses_system")
 	models.DB.Query("insert into User(username,email,password,admin) Values(?,?,?,?);", "test", "test", "test", false)
 	exitVal := m.Run()
-	log.Println("Do stuff AFTER the tests!")
 	models.DB.Query("delete from User where username=?", "test")
 	os.Exit(exitVal)
 }

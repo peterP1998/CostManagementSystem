@@ -108,3 +108,12 @@ func (userService UserService) CreateUser(name string, email string, password st
 	}
 	return nil
 }
+func (userService UserService) CheckDoesUserWithThatNameExists(name string) bool {
+	users,_:=userService.SelectAllUsers()
+	for _, v := range users {
+		if v.Name == name {
+			return true
+		}
+	}
+	return false
+}

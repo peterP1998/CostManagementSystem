@@ -6,48 +6,45 @@ import (
 	"github.com/wcharczuk/go-chart/v2"
 	"net/http"
 	"os"
+	"fmt"
 )
 
 type BalanceService struct {
 }
 
-
 func (balanceService BalanceService) CalculateBalanceCreateChart(w http.ResponseWriter, incomes []models.Income, expenses []models.Expense, userid int) {
 	balance := CalculateBalance(incomes, expenses)
-	createExpenseChart(userid)
-	createIncomeChart(userid)
-	views.CreateView(w, "static/templates/balance/balance.html", map[string]interface{}{"Balance": balance})
+	createChart("expense"+fmt.Sprint(userid),userid,createArrayOfExepnses(userid))
+	createChart("income"+fmt.Sprint(userid),userid,createArrayOfIncomes(userid))
+	views.CreateView(w, "static/templates/balance/balance.html", map[string]interface{}{"Balance": balance,"Income":"income"+fmt.Sprint(userid),"Expense":"expense"+fmt.Sprint(userid)})
 }
-func createExpenseChart(userid int) {
+func createArrayOfExepnses(userid int)([]chart.Value){
+	values:= []chart.Value{
+		{Value: getValueOfExpensesOfOneCategory(userid, "Clothes"), Label: "Clothes"},
+		{Value: getValueOfExpensesOfOneCategory(userid, "Rent"), Label: "Rent"},
+		{Value: getValueOfExpensesOfOneCategory(userid, "Food"), Label: "Food"},
+		{Value: getValueOfExpensesOfOneCategory(userid, "Bills"), Label: "Bills"},
+		{Value: getValueOfExpensesOfOneCategory(userid, "other"), Label: "Other"},
+	}
+	return values
+}
+func createArrayOfIncomes(userid int)([]chart.Value){
+	values:= []chart.Value{
+		{Value: getValueOfIncomesOfOneCategory(userid, "Salary"), Label: "Salary"},
+		{Value: getValueOfIncomesOfOneCategory(userid, "Gift"), Label: "Gift"},
+		{Value: getValueOfIncomesOfOneCategory(userid, "Found"), Label: "Found"},
+		{Value: getValueOfIncomesOfOneCategory(userid, "Sell"), Label: "Sell"},
+	}
+	return values
+}
+func createChart(pictureName string,userid int,values []chart.Value){
 	pie := chart.PieChart{
 		Width:  256,
 		Height: 256,
-		Values: []chart.Value{
-			{Value: getValueOfExpensesOfOneCategory(userid, "Clothes"), Label: "Clothes"},
-			{Value: getValueOfExpensesOfOneCategory(userid, "Rent"), Label: "Rent"},
-			{Value: getValueOfExpensesOfOneCategory(userid, "Food"), Label: "Food"},
-			{Value: getValueOfExpensesOfOneCategory(userid, "Bills"), Label: "Bills"},
-			{Value: getValueOfExpensesOfOneCategory(userid, "other"), Label: "Other"},
-		},
+		Values: values,
 	}
 
-	f, _ := os.Create("static/output.png")
-	defer f.Close()
-	pie.Render(chart.PNG, f)
-}
-func createIncomeChart(userid int) {
-	pie := chart.PieChart{
-		Width:  256,
-		Height: 256,
-		Values: []chart.Value{
-			{Value: getValueOfIncomesOfOneCategory(userid, "Salary"), Label: "Salary"},
-			{Value: getValueOfIncomesOfOneCategory(userid, "Gift"), Label: "Gift"},
-			{Value: getValueOfIncomesOfOneCategory(userid, "Found"), Label: "Found"},
-			{Value: getValueOfIncomesOfOneCategory(userid, "Sell"), Label: "Sell"},
-		},
-	}
-
-	f, _ := os.Create("static/income.png")
+	f, _ := os.Create("static/"+pictureName)
 	defer f.Close()
 	pie.Render(chart.PNG, f)
 }

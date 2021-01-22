@@ -35,7 +35,7 @@ func (groupService GroupService) SelectAllGroups() ([]models.Group, error) {
 	defer res.Close()
 	return groups, err
 }
-func (groupService GroupService) DeleteGroup(groupId int) error{
+func (groupService GroupService) DeleteGroup(groupId int) error {
 	_, err := models.DB.Query("delete from Groupp where id=?;", groupId)
 	if err != nil {
 		return err
@@ -65,12 +65,4 @@ func createGroupDB(targetmoney int, groupname string) error {
 		return err
 	}
 	return nil
-}
-
-func DonateToGroup(groupId int, money int, w http.ResponseWriter) {
-	_, err := models.DB.Query("UPDATE Groupp SET moneybynow='?' WHERE id=?", money, groupId)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 }

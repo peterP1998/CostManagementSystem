@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/peterP1998/CostManagementSystem/models"
 	"errors"
+	"github.com/peterP1998/CostManagementSystem/models"
 )
 
 type IncomeService struct {
@@ -22,7 +22,7 @@ func SelectAllIncomesForUser(id int) ([]models.Income, error) {
 	return incomes, nil
 }
 func (incomeService IncomeService) CreateIncome(id int, desc string, value int, category string) error {
-	if category!="Salary" && category!="Gift" && category!="Found" && category!="Sell"{
+	if category != "Salary" && category != "Gift" && category != "Found" && category != "Sell" {
 		return errors.New("Wrong category")
 	}
 	_, err := models.DB.Query("insert into Income(description,value,category,userid) Values(?,?,?,?);", desc, value, category, id)
@@ -31,7 +31,7 @@ func (incomeService IncomeService) CreateIncome(id int, desc string, value int, 
 	}
 	return nil
 }
-func DeleteIncome(userId int)(error){
+func DeleteIncome(userId int) error {
 	_, err := models.DB.Query("delete from Income where userid=?;", userId)
 	if err != nil {
 		return err

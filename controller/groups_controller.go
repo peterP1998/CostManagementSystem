@@ -49,7 +49,7 @@ func (groupController GroupController) DonateMoney(w http.ResponseWriter, r *htt
 	r.ParseForm()
 	groups, err := groupController.groupService.SelectAllGroups()
 	errresp := map[string]interface{}{"group": groups, "messg": "Something went wrong!Try again!"}
-	messg := "Group donation succesfully"
+	messg := "Group donation succesfully!"
 	if err != nil {
 		views.CreateView(w, "static/templates/group/donategroup.html", errresp)
 		return

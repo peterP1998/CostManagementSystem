@@ -3,4 +3,4 @@
 Cost Management System is web application that helps you to track your money. You can add incomes and expenses and you can check your balance.
 You can help different group targets for example("money for rent" or "money for internet" groups and this groups are crated by your roommate).
 
-![Welcome page](images/expense.png)
+<img src="images/expense.png" alt="Welcome page]" width="500" height="600">

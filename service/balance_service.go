@@ -1,12 +1,12 @@
 package service
 
 import (
+	"fmt"
 	"github.com/peterP1998/CostManagementSystem/models"
 	"github.com/peterP1998/CostManagementSystem/views"
 	"github.com/wcharczuk/go-chart/v2"
 	"net/http"
 	"os"
-	"fmt"
 )
 
 type BalanceService struct {
@@ -14,12 +14,12 @@ type BalanceService struct {
 
 func (balanceService BalanceService) CalculateBalanceCreateChart(w http.ResponseWriter, incomes []models.Income, expenses []models.Expense, userid int) {
 	balance := CalculateBalance(incomes, expenses)
-	createChart("expense"+fmt.Sprint(userid),userid,createArrayOfExepnses(userid))
-	createChart("income"+fmt.Sprint(userid),userid,createArrayOfIncomes(userid))
-	views.CreateView(w, "static/templates/balance/balance.html", map[string]interface{}{"Balance": balance,"Income":"income"+fmt.Sprint(userid),"Expense":"expense"+fmt.Sprint(userid)})
+	createChart("expense"+fmt.Sprint(userid), userid, createArrayOfExepnses(userid))
+	createChart("income"+fmt.Sprint(userid), userid, createArrayOfIncomes(userid))
+	views.CreateView(w, "static/templates/balance/balance.html", map[string]interface{}{"Balance": balance, "Income": "income" + fmt.Sprint(userid), "Expense": "expense" + fmt.Sprint(userid)})
 }
-func createArrayOfExepnses(userid int)([]chart.Value){
-	values:= []chart.Value{
+func createArrayOfExepnses(userid int) []chart.Value {
+	values := []chart.Value{
 		{Value: getValueOfExpensesOfOneCategory(userid, "Clothes"), Label: "Clothes"},
 		{Value: getValueOfExpensesOfOneCategory(userid, "Rent"), Label: "Rent"},
 		{Value: getValueOfExpensesOfOneCategory(userid, "Food"), Label: "Food"},
@@ -28,8 +28,8 @@ func createArrayOfExepnses(userid int)([]chart.Value){
 	}
 	return values
 }
-func createArrayOfIncomes(userid int)([]chart.Value){
-	values:= []chart.Value{
+func createArrayOfIncomes(userid int) []chart.Value {
+	values := []chart.Value{
 		{Value: getValueOfIncomesOfOneCategory(userid, "Salary"), Label: "Salary"},
 		{Value: getValueOfIncomesOfOneCategory(userid, "Gift"), Label: "Gift"},
 		{Value: getValueOfIncomesOfOneCategory(userid, "Found"), Label: "Found"},
@@ -37,14 +37,14 @@ func createArrayOfIncomes(userid int)([]chart.Value){
 	}
 	return values
 }
-func createChart(pictureName string,userid int,values []chart.Value){
+func createChart(pictureName string, userid int, values []chart.Value) {
 	pie := chart.PieChart{
 		Width:  256,
 		Height: 256,
 		Values: values,
 	}
 
-	f, _ := os.Create("static/"+pictureName)
+	f, _ := os.Create("static/" + pictureName)
 	defer f.Close()
 	pie.Render(chart.PNG, f)
 }

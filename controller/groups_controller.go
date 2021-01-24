@@ -37,10 +37,12 @@ func (groupController GroupController) CreateGroup(w http.ResponseWriter, r *htt
 	_, admin, err := groupController.accountService.ParseToken(token.Value)
 	if admin == false || err != nil {
 		views.CreateView(w, "static/templates/group/creategroup.html", errresp)
+		return
 	}
 	err = groupController.groupService.CreateGroup(r.FormValue("money"), r.FormValue("group"))
 	if err != nil {
 		views.CreateView(w, "static/templates/group/creategroup.html", errresp)
+		return
 	}
 	views.CreateView(w, "static/templates/group/creategroup.html", ok)
 }

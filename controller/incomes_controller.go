@@ -15,7 +15,7 @@ type IncomeController struct {
 }
 
 func (incomeController IncomeController) IncomePage(w http.ResponseWriter, r *http.Request) {
-	err:=views.CreateView(w, "static/templates/income/income.html", nil)
+	err := views.CreateView(w, "static/templates/income/income.html", nil)
 	utils.InternalServerError(err, w)
 }
 func (incomeController IncomeController) GetIncomesForUser(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +26,7 @@ func (incomeController IncomeController) GetIncomesForUser(w http.ResponseWriter
 	utils.UserNotFound(err, w)
 	incomes, err := service.SelectAllIncomesForUser(user.ID)
 	utils.InternalServerError(err, w)
-	err=views.CreateView(w, "static/templates/income/incomeHistory.html", incomes)
+	err = views.CreateView(w, "static/templates/income/incomeHistory.html", incomes)
 	utils.InternalServerError(err, w)
 }
 func (incomeController IncomeController) AddIncomeForUser(w http.ResponseWriter, r *http.Request) {

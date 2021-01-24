@@ -57,13 +57,13 @@ func (userController UserController) DeleteUser(w http.ResponseWriter, r *http.R
 	}
 	user, err := userController.userService.SelectUserByName(r.FormValue("name"))
 	if err != nil {
-		err=views.CreateView(w, "static/templates/user/deleteuser.html", errresp)
+		err = views.CreateView(w, "static/templates/user/deleteuser.html", errresp)
 		utils.InternalServerError(err, w)
 		return
 	}
 	err = userController.userService.DeleteUserById(user.ID)
 	if err != nil {
-		err =views.CreateView(w, "static/templates/user/deleteuser.html", errresp)
+		err = views.CreateView(w, "static/templates/user/deleteuser.html", errresp)
 		utils.InternalServerError(err, w)
 		return
 	}
@@ -73,8 +73,9 @@ func (userController UserController) CreateUser(w http.ResponseWriter, r *http.R
 	r.ParseForm()
 	errresp := map[string]interface{}{"messg": "Something went wrong!Try again!"}
 	ok := map[string]interface{}{"messg": "User created succesfully"}
-	if userController.userService.CheckDoesUserWithThatNameExists(r.FormValue("username")){
-		err := views.CreateView(w, "static/templates/user/createuser.html", map[string]interface{}{"messg": "User with that name already exists"})
+	valid, resp := userController.userService.CheckInputsBeforeCreating(r.FormValue("username"), r.FormValue("email"), r.FormValue("password"))
+	if !valid {
+		err := views.CreateView(w, "static/templates/user/createuser.html", map[string]interface{}{"messg": resp})
 		utils.InternalServerError(err, w)
 		return
 	}
@@ -89,8 +90,9 @@ func (userController UserController) CreateUser(w http.ResponseWriter, r *http.R
 }
 func (userController UserController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	if userController.userService.CheckDoesUserWithThatNameExists(r.FormValue("username")){
-		err := views.CreateView(w, "static/templates/accounts/signup.html", map[string]interface{}{"messg": "User with that name already exists"})
+	valid, resp := userController.userService.CheckInputsBeforeCreating(r.FormValue("username"), r.FormValue("email"), r.FormValue("password"))
+	if !valid {
+		err := views.CreateView(w, "static/templates/accounts/signup.html", map[string]interface{}{"messg": resp})
 		utils.InternalServerError(err, w)
 		return
 	}

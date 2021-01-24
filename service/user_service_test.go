@@ -57,3 +57,12 @@ func TestCreateSelectDeleteUser(t *testing.T) {
 	err = userService.DeleteUserById(user.ID)
 	assert.Equal(t, err, nil, "Error should be nill")
 }
+func TestEmailValidate(t *testing.T) {
+	assert.Equal(t, false, checkEmail("test not email"))
+	assert.Equal(t, true, checkEmail("test@gmail.com"))
+}
+func TestPasswordValidate(t *testing.T) {
+	assert.Equal(t, false, checkPassword("test not email"))
+	assert.Equal(t, true, checkPassword("test1gmail.com"))
+	assert.Equal(t, false, checkPassword("test1"))
+}

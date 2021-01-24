@@ -5,6 +5,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/peterP1998/CostManagementSystem/models"
 	"golang.org/x/crypto/bcrypt"
+	"regexp"
 )
 
 type UserService struct {
@@ -108,12 +109,38 @@ func (userService UserService) CreateUser(name string, email string, password st
 	}
 	return nil
 }
-func (userService UserService) CheckDoesUserWithThatNameExists(name string) bool {
-	users,_:=userService.SelectAllUsers()
+func (userService UserService) CheckInputsBeforeCreating(username string, email string, password string) (bool, string) {
+	if checkDoesUserWithThatNameExists(username, userService) {
+		return false, "User with that name already exists"
+	}
+	if !checkEmail(email) {
+		return false, "Invalid email adress"
+	}
+	if !checkPassword(password) {
+		return false, "Invalid password"
+	}
+	return true, ""
+}
+func checkDoesUserWithThatNameExists(name string, userService UserService) bool {
+	users, _ := userService.SelectAllUsers()
 	for _, v := range users {
 		if v.Name == name {
 			return true
 		}
 	}
 	return false
+}
+func checkEmail(email string) bool {
+	var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	if len(email) < 3 && len(email) > 254 {
+		return false
+	}
+	return emailRegex.MatchString(email)
+}
+func checkPassword(pass string) bool {
+	var passRegex = regexp.MustCompile("([A-Za-z]+[0-9]|[0-9]+[A-Za-z])[A-Za-z0-9]*")
+	if len(pass) < 6 {
+		return false
+	}
+	return passRegex.MatchString(pass)
 }

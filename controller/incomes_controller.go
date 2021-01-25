@@ -9,9 +9,9 @@ import (
 )
 
 type IncomeController struct {
-	accountService service.AccountService
-	incomeService  service.IncomeService
-	userService    service.UserService
+	Accountervice service.AccountService
+	IncomeService  service.IncomeService
+	Userservice    service.UserService
 }
 
 func (incomeController IncomeController) IncomePage(w http.ResponseWriter, r *http.Request) {
@@ -19,26 +19,26 @@ func (incomeController IncomeController) IncomePage(w http.ResponseWriter, r *ht
 	utils.InternalServerError(err, w)
 }
 func (incomeController IncomeController) GetIncomesForUser(w http.ResponseWriter, r *http.Request) {
-	token := incomeController.accountService.CheckAuthBeforeOperate(r, w)
-	username, _, err := incomeController.accountService.ParseToken(token.Value)
+	token := incomeController.Accountervice.CheckAuthBeforeOperate(r, w)
+	username, _, err := incomeController.Accountervice.ParseToken(token.Value)
 	utils.InternalServerError(err, w)
-	user, err := incomeController.userService.SelectUserByName(username)
+	user, err := incomeController.Userservice.SelectUserByName(username)
 	utils.UserNotFound(err, w)
-	incomes, err := service.SelectAllIncomesForUser(user.ID)
+	incomes, err := incomeController.IncomeService.SelectAllIncomesForUser(user.ID)
 	utils.InternalServerError(err, w)
 	err = views.CreateView(w, "static/templates/income/incomeHistory.html", incomes)
 	utils.InternalServerError(err, w)
 }
 func (incomeController IncomeController) AddIncomeForUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	token := incomeController.accountService.CheckAuthBeforeOperate(r, w)
-	username, _, err := incomeController.accountService.ParseToken(token.Value)
+	token := incomeController.Accountervice.CheckAuthBeforeOperate(r, w)
+	username, _, err := incomeController.Accountervice.ParseToken(token.Value)
 	errresp := map[string]interface{}{"messg": "Something went wrong!Try again!"}
 	okresp := map[string]interface{}{"messg": "Income Created!"}
 	if err != nil {
 		views.CreateView(w, "static/templates/income/income.html", errresp)
 	}
-	user, err := incomeController.userService.SelectUserByName(username)
+	user, err := incomeController.Userservice.SelectUserByName(username)
 	if err != nil {
 		views.CreateView(w, "static/templates/income/income.html", errresp)
 	}
@@ -46,7 +46,7 @@ func (incomeController IncomeController) AddIncomeForUser(w http.ResponseWriter,
 	if err != nil {
 		views.CreateView(w, "static/templates/income/income.html", errresp)
 	}
-	err = incomeController.incomeService.CreateIncome(user.ID, r.FormValue("description"), i, r.FormValue("category"))
+	err = incomeController.IncomeService.CreateIncome(user.ID, r.FormValue("description"), i, r.FormValue("category"))
 	if err != nil {
 		views.CreateView(w, "static/templates/income/income.html", errresp)
 	}

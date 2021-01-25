@@ -7,20 +7,22 @@ import (
 )
 
 type BalanceController struct {
-	accountService service.AccountService
-	balanceService service.BalanceService
-	userService    service.UserService
+	Accountservice service.AccountService
+	Balanceservice service.BalanceService
+	Userservice    service.UserService
+	Expenseservice service.ExpenseService
+	Incomeservice  service.IncomeService
 }
 
 func (balance *BalanceController) GetBalanceForUser(w http.ResponseWriter, r *http.Request) {
-	token := balance.accountService.CheckAuthBeforeOperate(r, w)
-	username, _, err := balance.accountService.ParseToken(token.Value)
+	token := balance.Accountservice.CheckAuthBeforeOperate(r, w)
+	username, _, err := balance.Accountservice.ParseToken(token.Value)
 	utils.InternalServerError(err, w)
-	user, err := balance.userService.SelectUserByName(username)
+	user, err := balance.Userservice.SelectUserByName(username)
 	utils.InternalServerError(err, w)
-	incomes, err := service.SelectAllIncomesForUser(user.ID)
+	incomes, err := balance.Incomeservice.SelectAllIncomesForUser(user.ID)
 	utils.InternalServerError(err, w)
-	expenses, err := service.SelectAllExpensesForUser(user.ID)
+	expenses, err := balance.Expenseservice.SelectAllExpensesForUser(user.ID)
 	utils.InternalServerError(err, w)
-	balance.balanceService.CalculateBalanceCreateChart(w, incomes, expenses, user.ID)
+	balance.Balanceservice.CalculateBalanceCreateChart(w, incomes, expenses, user.ID)
 }

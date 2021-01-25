@@ -7,27 +7,19 @@ import (
 )
 
 func TestGetNumberOfExpensesAndIncomes(t *testing.T) {
-	var userService UserService
-	user, err := userService.SelectUserByName("test")
-	var incomeService IncomeService
-	err = incomeService.CreateIncome(user.ID, "test", 3, "Salary")
-	var expenseService ExpenseService
-	err = expenseService.CreateExpense(user.ID, "test", 3, "Other")
-	cnt := getValueOfExpensesOfOneCategory(user.ID, "Other")
-	assert.Equal(t, 3.0, cnt, "Error should be nill")
-	cntIncomes := getValueOfIncomesOfOneCategory(user.ID, "Salary")
-	assert.Equal(t, 3.0, cntIncomes, "Error should be nill")
-	err = DeleteIncome(user.ID)
-	assert.Equal(t, err, nil, "Error should be nill")
-	err = DeleteExpense(user.ID)
-	assert.Equal(t, err, nil, "Error should be nill")
+	var expenseRepo ExpenseRepositoryMock
+	var incomeRepo IncomeRepositoryMock
+	cnt := getValueOfExpensesOfOneCategory(2, "Other", expenseRepo)
+	assert.Equal(t, 0.0, cnt, "Error should be nill")
+	cntIncomes := getValueOfIncomesOfOneCategory(2, "Salary", incomeRepo)
+	assert.Equal(t, 0.0, cntIncomes, "Error should be nill")
 }
 
 func TestBalance(t *testing.T) {
 	incomes := makeIncomesArrary()
 	expenses := makeExpensesArrary()
 	balance := CalculateBalance(incomes, expenses)
-	assert.Equal(t, float32(1), balance, "Wrong wroking balanc function")
+	assert.Equal(t, float32(1), balance, "Wrong wroking balance function")
 }
 
 func makeExpensesArrary() []models.Expense {

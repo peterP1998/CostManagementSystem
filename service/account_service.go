@@ -10,7 +10,7 @@ import (
 )
 
 type AccountService struct {
-	userService UserService
+	UserServiceWired UserService
 }
 
 var jwtKey = []byte("my_secret_key")
@@ -34,7 +34,7 @@ func (account AccountService) CheckAuthBeforeOperate(r *http.Request, w http.Res
 	return token
 }
 func (account AccountService) Login(password string, username string, w http.ResponseWriter) {
-	user, err := account.userService.SelectUserByName(username)
+	user, err := account.UserServiceWired.SelectUserByName(username)
 	if err != nil {
 		views.CreateView(w, "static/templates/accounts/index.html", map[string]interface{}{"messg": "Wrong username or password!"})
 		return

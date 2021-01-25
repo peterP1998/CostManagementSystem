@@ -8,7 +8,7 @@ import (
 )
 
 type AccountController struct {
-	account service.AccountService
+	AccountS service.AccountService
 }
 
 func (controller AccountController) GetLoginForm(w http.ResponseWriter, r *http.Request) {
@@ -24,8 +24,8 @@ func (controller AccountController) GetRegister(w http.ResponseWriter, r *http.R
 	utils.InternalServerError(err, w)
 }
 func (controller AccountController) Account(w http.ResponseWriter, r *http.Request) {
-	token := controller.account.CheckAuthBeforeOperate(r, w)
-	_, admin, err := controller.account.ParseToken(token.Value)
+	token := controller.AccountS.CheckAuthBeforeOperate(r, w)
+	_, admin, err := controller.AccountS.ParseToken(token.Value)
 	if err != nil {
 		http.Redirect(w, r, "/api/login", http.StatusSeeOther)
 	}
@@ -39,7 +39,7 @@ func (controller AccountController) Account(w http.ResponseWriter, r *http.Reque
 }
 func (controller AccountController) Signin(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	controller.account.Login(r.FormValue("password"), r.FormValue("username"), w)
+	controller.AccountS.Login(r.FormValue("password"), r.FormValue("username"), w)
 	http.Redirect(w, r, "/api/account", http.StatusSeeOther)
 }
 func (controller AccountController) Logout(w http.ResponseWriter, r *http.Request) {

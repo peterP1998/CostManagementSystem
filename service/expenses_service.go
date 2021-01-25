@@ -3,48 +3,53 @@ package service
 import (
 	"errors"
 	"github.com/peterP1998/CostManagementSystem/models"
+	"github.com/peterP1998/CostManagementSystem/repository"
 )
 
 type ExpenseService struct {
+	ExpenseRepositoryDB repository.ExpenseRepositoryInterface
+	IncomeServiceWired  IncomeService
 }
 
-func SelectAllExpensesForUser(id int) ([]models.Expense, error) {
-	res, err := models.DB.Query("select * from Expense where userid=?;", id)
+func (expenseService ExpenseService) SelectAllExpensesForUser(id int) ([]models.Expense, error) {
+	res, err := expenseService.ExpenseRepositoryDB.SelectAllExpensesForUserById(id)
 	if err != nil {
 		return nil, err
 	}
 	expenses := make([]models.Expense, 0)
-	for res.Next() {
-		var expense models.Expense
-		res.Scan(&expense.ID, &expense.Description, &expense.Value, &expense.Category, &expense.Userid)
-		expenses = append(expenses, expense)
+	if res != nil {
+		for res.Next() {
+			var expense models.Expense
+			res.Scan(&expense.ID, &expense.Description, &expense.Value, &expense.Category, &expense.Userid)
+			expenses = append(expenses, expense)
+		}
 	}
 	return expenses, nil
 }
 func (expenseService ExpenseService) CreateExpense(id int, desc string, value int, category string) error {
-	err := BalanceForNewExpense(id, value)
+	err := expenseService.BalanceForNewExpense(id, value)
 	if err != nil {
 		return err
 	}
-	_, err = models.DB.Query("insert into Expense(description,value,category,userid) Values(?,?,?,?);", desc, value, category, id)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-func DeleteExpense(userId int) error {
-	_, err := models.DB.Query("delete from Expense where userid=?;", userId)
+	err = expenseService.ExpenseRepositoryDB.CreateExpense(id, desc, value, category)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func BalanceForNewExpense(id int, value int) error {
-	incomes, err := SelectAllIncomesForUser(id)
+func (expenseService ExpenseService) DeleteExpense(userId int) error {
+	err := expenseService.ExpenseRepositoryDB.DeleteExpense(userId)
 	if err != nil {
 		return err
 	}
-	expenses, err := SelectAllExpensesForUser(id)
+	return nil
+}
+func (expenseService ExpenseService) BalanceForNewExpense(id int, value int) error {
+	incomes, err := expenseService.IncomeServiceWired.SelectAllIncomesForUser(id)
+	if err != nil {
+		return err
+	}
+	expenses, err := expenseService.SelectAllExpensesForUser(id)
 	if err != nil {
 		return err
 	}

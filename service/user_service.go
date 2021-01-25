@@ -4,32 +4,26 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/peterP1998/CostManagementSystem/models"
+	"github.com/peterP1998/CostManagementSystem/repository"
 	"golang.org/x/crypto/bcrypt"
 	"regexp"
 )
 
 type UserService struct {
+	ExpenseS ExpenseService
+	IncomeS  IncomeService
+	UserRepository    repository.UserRepositoryInterface
 }
 
 func (userService UserService) SelectUserByName(username string) (models.User, error) {
-	var user models.User
-	err := models.DB.QueryRow("SELECT * FROM User where username=?", username).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Admin)
+	user,err := userService.UserRepository.SelectUserByName(username)
 	if err != nil {
 		return user, err
 	}
 	return user, nil
 }
 func (userService UserService) SelectAllUsers() ([]models.User, error) {
-	res, err := selectAllUsersDB()
-	if err != nil {
-		return nil, err
-	}
-	defer res.Close()
-	users := readUsersFromDB(res)
-	return users, nil
-}
-func selectAllUsersDB() (*sql.Rows, error) {
-	res, err := models.DB.Query("SELECT * FROM User")
+	res, err := userService.UserRepository.SelectAllUsers()
 	if err != nil {
 		return nil, err
 	}
@@ -59,40 +53,40 @@ func (userService UserService) SelectAllUsersWithoutAdmins(username string) ([]m
 	return users_without_admins, nil
 }
 func (userService UserService) DeleteUserById(userId int) error {
-	err := DeleteExpense(userId)
+	err := userService.ExpenseS.DeleteExpense(userId)
 	if err != nil {
 		return err
 	}
-	err = DeleteIncome(userId)
+	err = userService.IncomeS.DeleteIncome(userId)
 	if err != nil {
 		return err
 	}
-	_, err = models.DB.Query("delete from User where id=?;", userId)
+	err = userService.UserRepository.DeleteUserById(userId)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 func (userService UserService) RegisterUser(name string, email string, password string) error {
-	err := createUser(name, email, password, false)
+	err := createUser(name, email, password, false,userService.UserRepository)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func createUserDB(name string, email string, password string, admin bool) error {
-	_, err := models.DB.Query("insert into User(username,email,password,admin) Values(?,?,?,?);", name, email, password, admin)
+func createUserDB(name string, email string, password string, admin bool,userRepository repository.UserRepositoryInterface) error {
+	err := userRepository.InsertUser(name, email, password, admin)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func createUser(name string, email string, password string, admin bool) error {
+func createUser(name string, email string, password string, admin bool,userRepository repository.UserRepositoryInterface) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
-	err = createUserDB(name, email, string(hashedPassword), admin)
+	err = createUserDB(name, email, string(hashedPassword), admin,userRepository)
 	if err != nil {
 		return err
 	}
@@ -103,7 +97,7 @@ func (userService UserService) CreateUser(name string, email string, password st
 	if admin == "yes" {
 		adminval = true
 	}
-	err := createUser(name, email, password, adminval)
+	err := createUser(name, email, password, adminval,userService.UserRepository)
 	if err != nil {
 		return err
 	}

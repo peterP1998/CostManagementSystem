@@ -3,21 +3,25 @@ package service
 import (
 	"errors"
 	"github.com/peterP1998/CostManagementSystem/models"
+	"github.com/peterP1998/CostManagementSystem/repository"
 )
 
 type IncomeService struct {
+	IncomeRepositoryDB repository.IncomeRepositoryInterface
 }
 
-func SelectAllIncomesForUser(id int) ([]models.Income, error) {
-	res, err := models.DB.Query("select * from Income where userid=?;", id)
+func (incomeService IncomeService) SelectAllIncomesForUser(id int) ([]models.Income, error) {
+	res, err := incomeService.IncomeRepositoryDB.SelectAllIncomesForUserById(id)
 	if err != nil {
 		return nil, err
 	}
 	incomes := make([]models.Income, 0)
-	for res.Next() {
-		var income models.Income
-		res.Scan(&income.ID, &income.Description, &income.Value, &income.Category, &income.Userid)
-		incomes = append(incomes, income)
+	if res != nil {
+		for res.Next() {
+			var income models.Income
+			res.Scan(&income.ID, &income.Description, &income.Value, &income.Category, &income.Userid)
+			incomes = append(incomes, income)
+		}
 	}
 	return incomes, nil
 }
@@ -25,14 +29,14 @@ func (incomeService IncomeService) CreateIncome(id int, desc string, value int, 
 	if category != "Salary" && category != "Gift" && category != "Found" && category != "Sell" {
 		return errors.New("Wrong category")
 	}
-	_, err := models.DB.Query("insert into Income(description,value,category,userid) Values(?,?,?,?);", desc, value, category, id)
+	err := incomeService.IncomeRepositoryDB.CreateIncome(id, desc, value, category)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func DeleteIncome(userId int) error {
-	_, err := models.DB.Query("delete from Income where userid=?;", userId)
+func (incomeService IncomeService) DeleteIncome(userId int) error {
+	err := incomeService.IncomeRepositoryDB.DeleteIncome(userId)
 	if err != nil {
 		return err
 	}

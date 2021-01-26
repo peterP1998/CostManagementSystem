@@ -29,7 +29,7 @@ func (er IncomeRepositoryMock) DeleteIncome(userId int) error {
 }
 func (er IncomeRepositoryMock) CreateIncome(id int, desc string, value int, category string) error {
 	if id == 2 {
-		arrIncomes = append(arrIncomes, models.Income{2, desc, float32(value), category, id})
+		arrIncomes = append(arrIncomes, models.Income{ID: 2, Description: desc, Value: float32(value), Category: category, Userid: id})
 		return nil
 	}
 	return nil
@@ -49,7 +49,7 @@ func TestSelectAllIncomesForUser(t *testing.T) {
 }
 func TestDeleteIncome(t *testing.T) {
 	var incomeService IncomeService = IncomeService{IncomeRepositoryDB: IncomeRepositoryMock{}}
-	arrIncomes = append(arrIncomes, models.Income{2, "", 2.0, "category", 3})
+	arrIncomes = append(arrIncomes, models.Income{ID: 2, Description: "", Value: 2.0, Category: "category", Userid: 3})
 	err := incomeService.DeleteIncome(3)
 	assert.Equal(t, nil, err, "Delete not working correctly")
 	assert.NotEqual(t, nil, arrIncomes, "Delete not working correctly")

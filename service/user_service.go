@@ -10,13 +10,13 @@ import (
 )
 
 type UserService struct {
-	ExpenseS ExpenseService
-	IncomeS  IncomeService
-	UserRepository    repository.UserRepositoryInterface
+	ExpenseS       ExpenseService
+	IncomeS        IncomeService
+	UserRepository repository.UserRepositoryInterface
 }
 
 func (userService UserService) SelectUserByName(username string) (models.User, error) {
-	user,err := userService.UserRepository.SelectUserByName(username)
+	user, err := userService.UserRepository.SelectUserByName(username)
 	if err != nil {
 		return user, err
 	}
@@ -68,25 +68,25 @@ func (userService UserService) DeleteUserById(userId int) error {
 	return nil
 }
 func (userService UserService) RegisterUser(name string, email string, password string) error {
-	err := createUser(name, email, password, false,userService.UserRepository)
+	err := createUser(name, email, password, false, userService.UserRepository)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func createUserDB(name string, email string, password string, admin bool,userRepository repository.UserRepositoryInterface) error {
+func createUserDB(name string, email string, password string, admin bool, userRepository repository.UserRepositoryInterface) error {
 	err := userRepository.InsertUser(name, email, password, admin)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func createUser(name string, email string, password string, admin bool,userRepository repository.UserRepositoryInterface) error {
+func createUser(name string, email string, password string, admin bool, userRepository repository.UserRepositoryInterface) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
-	err = createUserDB(name, email, string(hashedPassword), admin,userRepository)
+	err = createUserDB(name, email, string(hashedPassword), admin, userRepository)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func (userService UserService) CreateUser(name string, email string, password st
 	if admin == "yes" {
 		adminval = true
 	}
-	err := createUser(name, email, password, adminval,userService.UserRepository)
+	err := createUser(name, email, password, adminval, userService.UserRepository)
 	if err != nil {
 		return err
 	}

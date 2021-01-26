@@ -2,41 +2,46 @@ package service
 
 import (
 	"github.com/peterP1998/CostManagementSystem/models"
+	"github.com/peterP1998/CostManagementSystem/repository"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
 type GroupService struct {
+	GroupRepositoryDB repository.GroupRepositoryInterface
 }
 
 func (groupService GroupService) SelectGroupById(groupId int) (models.Group, error) {
-	var group models.Group
-	err := models.DB.QueryRow("select * from Groupp where id=?;", groupId).Scan(&group.ID, &group.GroupName, &group.MoneyByNow, &group.TargetMoney)
-	return group, err
+	group, err := groupService.GroupRepositoryDB.SelectGroupById(groupId)
+	if err != nil {
+		return group, err
+	}
+	return group, nil
 }
 func (groupService GroupService) SelectGroupByName(name string) (models.Group, error) {
-	var group models.Group
-	err := models.DB.QueryRow("select * from Groupp where groupname=?;", name).Scan(&group.ID, &group.GroupName, &group.MoneyByNow, &group.TargetMoney)
+	group, err := groupService.GroupRepositoryDB.SelectGroupByName(name)
+	if err != nil {
+		return group, err
+	}
 	return group, err
 }
 func (groupService GroupService) UpdateGroupMoney(id int, value int) error {
-	_, err := models.DB.Query("Update Groupp set moneybynow=? where id=?;", value, id)
-	return err
+	err := groupService.GroupRepositoryDB.UpdateGroupMoney(id, value)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 func (groupService GroupService) SelectAllGroups() ([]models.Group, error) {
-	res, err := models.DB.Query("select * from Groupp;")
-	groups := make([]models.Group, 0)
-	for res.Next() {
-		var group models.Group
-		res.Scan(&group.ID, &group.GroupName, &group.MoneyByNow, &group.TargetMoney)
-		groups = append(groups, group)
+	groups, err := groupService.GroupRepositoryDB.SelectAllGroups()
+	if err != nil {
+		return nil, err
 	}
-	defer res.Close()
-	return groups, err
+	return groups, nil
 }
 func (groupService GroupService) DeleteGroup(groupId int) error {
-	_, err := models.DB.Query("delete from Groupp where id=?;", groupId)
+	err := groupService.GroupRepositoryDB.DeleteGroup(groupId)
 	if err != nil {
 		return err
 	}
@@ -47,7 +52,7 @@ func (groupService GroupService) CreateGroup(money string, group string) error {
 	if err != nil {
 		return err
 	}
-	err = createGroupDB(i, group)
+	err = createGroupDB(i, group, groupService)
 	if err != nil {
 		return err
 	}
@@ -59,8 +64,8 @@ func SplitUrlGroup(r *http.Request) (int, error) {
 	return groupId, err
 }
 
-func createGroupDB(targetmoney int, groupname string) error {
-	_, err := models.DB.Query("insert into Groupp(groupname,moneybynow,targetmoney) Values(?,?,?);", groupname, 0, targetmoney)
+func createGroupDB(targetmoney int, groupname string, groupService GroupService) error {
+	err := groupService.GroupRepositoryDB.CreateGroup(targetmoney, groupname)
 	if err != nil {
 		return err
 	}

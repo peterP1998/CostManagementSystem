@@ -16,29 +16,31 @@ import (
 	models.DB.Query("delete from User where username=?", "test")
 	os.Exit(exitVal)
 }*/
-type UserRepositoryMock struct{
+type UserRepositoryMock struct {
 }
+
 var users []models.User
-func (ur UserRepositoryMock)SelectAllUsers()([]models.User, error){
-	users=append(users,models.User{1,"test","petar@abv.bg","test",true})
-	return users,nil
+
+func (ur UserRepositoryMock) SelectAllUsers() ([]models.User, error) {
+	users = append(users, models.User{ID: 1, Name: "test", Email: "petar@abv.bg", Password: "test", Admin: true})
+	return users, nil
 }
-func (ur UserRepositoryMock)SelectUserByName(username string) (models.User, error){
+func (ur UserRepositoryMock) SelectUserByName(username string) (models.User, error) {
 	var user models.User
 	if username == "test" {
-		return models.User{1,"test","petar@abv.bg","test",false}, nil
+		return models.User{ID: 1, Name: "test", Email: "petar@abv.bg", Password: "test", Admin: false}, nil
 	}
 	return user, nil
 }
-func (ur UserRepositoryMock)DeleteUserById(id int)error{
+func (ur UserRepositoryMock) DeleteUserById(id int) error {
 	return nil
 }
-func (ur UserRepositoryMock)InsertUser(name string, email string, password string, admin bool)error{
-	users=append(users,models.User{1,name,email,password,admin})
+func (ur UserRepositoryMock) InsertUser(name string, email string, password string, admin bool) error {
+	users = append(users, models.User{ID: 1, Name: name, Email: email, Password: password, Admin: admin})
 	return nil
 }
 func TestSelectAllUsers(t *testing.T) {
-	var userService UserService=UserService{ExpenseService{},IncomeService{},UserRepositoryMock{}}
+	var userService UserService = UserService{ExpenseService{}, IncomeService{}, UserRepositoryMock{}}
 	users, _ := userService.SelectAllUsers()
 	flag := false
 	for _, b := range users {
@@ -49,7 +51,7 @@ func TestSelectAllUsers(t *testing.T) {
 	assert.Equal(t, true, flag, "Select not working correctly")
 }
 func TestSelectAllUsersWithoutAdmins(t *testing.T) {
-	var userService UserService=UserService{ExpenseService{},IncomeService{},UserRepositoryMock{}}
+	var userService UserService = UserService{ExpenseService{}, IncomeService{}, UserRepositoryMock{}}
 	users, _ := userService.SelectAllUsersWithoutAdmins("test1234")
 	flag := false
 	for _, b := range users {
@@ -68,7 +70,7 @@ func TestSelectAllUsersWithoutAdmins(t *testing.T) {
 	assert.Equal(t, false, flag, "SelectAllUsersWithoutAdmins not working correctly")
 }
 func TestCreateSelectDeleteUser(t *testing.T) {
-	var userService UserService=UserService{ExpenseService{ExpenseRepositoryMock{},IncomeService{}},IncomeService{IncomeRepositoryMock{}},UserRepositoryMock{}}
+	var userService UserService = UserService{ExpenseService{ExpenseRepositoryMock{}, IncomeService{}}, IncomeService{IncomeRepositoryMock{}}, UserRepositoryMock{}}
 	err := userService.CreateUser("testtest", "test@abv.bg", "test", "no")
 	assert.Equal(t, err, nil, "Error should be nill")
 	user, err := userService.SelectUserByName("test")

@@ -9,10 +9,10 @@ import (
 )
 
 type GroupController struct {
-	accountService service.AccountService
-	groupService   service.GroupService
-	userService    service.UserService
-	expenseService service.ExpenseService
+	Accountservice service.AccountService
+	Groupservice   service.GroupService
+	Userservice    service.UserService
+	Expenseservice service.ExpenseService
 }
 
 func (groupController GroupController) GetCreateGroupPage(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +20,7 @@ func (groupController GroupController) GetCreateGroupPage(w http.ResponseWriter,
 	utils.InternalServerError(err, w)
 }
 func (groupController GroupController) GetDonateGroupPage(w http.ResponseWriter, r *http.Request) {
-	groups, err := groupController.groupService.SelectAllGroups()
+	groups, err := groupController.Groupservice.SelectAllGroups()
 	groupmap := map[string]interface{}{
 		"messg": "",
 		"group": groups,
@@ -33,13 +33,13 @@ func (groupController GroupController) CreateGroup(w http.ResponseWriter, r *htt
 	errresp := map[string]interface{}{"messg": "Something went wrong!Try again!"}
 	ok := map[string]interface{}{"messg": "Group created succesfully"}
 	r.ParseForm()
-	token := groupController.accountService.CheckAuthBeforeOperate(r, w)
-	_, admin, err := groupController.accountService.ParseToken(token.Value)
+	token := groupController.Accountservice.CheckAuthBeforeOperate(r, w)
+	_, admin, err := groupController.Accountservice.ParseToken(token.Value)
 	if admin == false || err != nil {
 		views.CreateView(w, "static/templates/group/creategroup.html", errresp)
 		return
 	}
-	err = groupController.groupService.CreateGroup(r.FormValue("money"), r.FormValue("group"))
+	err = groupController.Groupservice.CreateGroup(r.FormValue("money"), r.FormValue("group"))
 	if err != nil {
 		views.CreateView(w, "static/templates/group/creategroup.html", errresp)
 		return
@@ -49,25 +49,25 @@ func (groupController GroupController) CreateGroup(w http.ResponseWriter, r *htt
 
 func (groupController GroupController) DonateMoney(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	groups, err := groupController.groupService.SelectAllGroups()
+	groups, err := groupController.Groupservice.SelectAllGroups()
 	errresp := map[string]interface{}{"group": groups, "messg": "Something went wrong!Try again!"}
 	messg := "Group donation succesfully!"
 	if err != nil {
 		views.CreateView(w, "static/templates/group/donategroup.html", errresp)
 		return
 	}
-	token := groupController.accountService.CheckAuthBeforeOperate(r, w)
-	username, _, err := groupController.accountService.ParseToken(token.Value)
+	token := groupController.Accountservice.CheckAuthBeforeOperate(r, w)
+	username, _, err := groupController.Accountservice.ParseToken(token.Value)
 	if err != nil {
 		views.CreateView(w, "static/templates/group/donategroup.html", errresp)
 		return
 	}
-	user, err := groupController.userService.SelectUserByName(username)
+	user, err := groupController.Userservice.SelectUserByName(username)
 	if err != nil {
 		views.CreateView(w, "static/templates/group/donategroup.html", errresp)
 		return
 	}
-	group, err := groupController.groupService.SelectGroupByName(r.FormValue("name"))
+	group, err := groupController.Groupservice.SelectGroupByName(r.FormValue("name"))
 	transactionMoney, err := strconv.Atoi(r.FormValue("value"))
 	if err != nil {
 		views.CreateView(w, "static/templates/group/donategroup.html", errresp)
@@ -83,7 +83,7 @@ func (groupController GroupController) DonateMoney(w http.ResponseWriter, r *htt
 	} else {
 		group.MoneyByNow = group.MoneyByNow + float64(transactionMoney)
 	}
-	err = groupController.expenseService.CreateExpense(user.ID, "Group donate", transactionMoney, "Other")
+	err = groupController.Expenseservice.CreateExpense(user.ID, "Group donate", transactionMoney, "Other")
 	if err != nil {
 		if err.Error() == "Not enough money" {
 			views.CreateView(w, "static/templates/group/donategroup.html", map[string]interface{}{"group": groups, "messg": "Not enough money!"})
@@ -93,7 +93,7 @@ func (groupController GroupController) DonateMoney(w http.ResponseWriter, r *htt
 			return
 		}
 	}
-	err = groupController.groupService.UpdateGroupMoney(group.ID, int(group.MoneyByNow))
+	err = groupController.Groupservice.UpdateGroupMoney(group.ID, int(group.MoneyByNow))
 	if err != nil {
 		views.CreateView(w, "static/templates/group/donategroup.html", errresp)
 		return

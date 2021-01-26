@@ -9,8 +9,8 @@ import (
 )
 
 type IncomeController struct {
-	Accountervice service.AccountService
-	IncomeService  service.IncomeService
+	Accountservice service.AccountService
+	Incomeservice  service.IncomeService
 	Userservice    service.UserService
 }
 
@@ -19,20 +19,20 @@ func (incomeController IncomeController) IncomePage(w http.ResponseWriter, r *ht
 	utils.InternalServerError(err, w)
 }
 func (incomeController IncomeController) GetIncomesForUser(w http.ResponseWriter, r *http.Request) {
-	token := incomeController.Accountervice.CheckAuthBeforeOperate(r, w)
-	username, _, err := incomeController.Accountervice.ParseToken(token.Value)
+	token := incomeController.Accountservice.CheckAuthBeforeOperate(r, w)
+	username, _, err := incomeController.Accountservice.ParseToken(token.Value)
 	utils.InternalServerError(err, w)
 	user, err := incomeController.Userservice.SelectUserByName(username)
 	utils.UserNotFound(err, w)
-	incomes, err := incomeController.IncomeService.SelectAllIncomesForUser(user.ID)
+	incomes, err := incomeController.Incomeservice.SelectAllIncomesForUser(user.ID)
 	utils.InternalServerError(err, w)
 	err = views.CreateView(w, "static/templates/income/incomeHistory.html", incomes)
 	utils.InternalServerError(err, w)
 }
 func (incomeController IncomeController) AddIncomeForUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	token := incomeController.Accountervice.CheckAuthBeforeOperate(r, w)
-	username, _, err := incomeController.Accountervice.ParseToken(token.Value)
+	token := incomeController.Accountservice.CheckAuthBeforeOperate(r, w)
+	username, _, err := incomeController.Accountservice.ParseToken(token.Value)
 	errresp := map[string]interface{}{"messg": "Something went wrong!Try again!"}
 	okresp := map[string]interface{}{"messg": "Income Created!"}
 	if err != nil {
@@ -46,7 +46,7 @@ func (incomeController IncomeController) AddIncomeForUser(w http.ResponseWriter,
 	if err != nil {
 		views.CreateView(w, "static/templates/income/income.html", errresp)
 	}
-	err = incomeController.IncomeService.CreateIncome(user.ID, r.FormValue("description"), i, r.FormValue("category"))
+	err = incomeController.Incomeservice.CreateIncome(user.ID, r.FormValue("description"), i, r.FormValue("category"))
 	if err != nil {
 		views.CreateView(w, "static/templates/income/income.html", errresp)
 	}

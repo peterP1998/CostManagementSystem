@@ -4,12 +4,6 @@ import (
 	"github.com/peterP1998/CostManagementSystem/models"
 )
 
-type UserRepositoryInterface interface {
-	SelectAllUsers() ([]models.User, error)
-	SelectUserByName(username string) (models.User, error)
-	DeleteUserById(id int) error
-	InsertUser(name string, email string, password string, admin bool) error
-}
 type UserRepository struct {
 }
 

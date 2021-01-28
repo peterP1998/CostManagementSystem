@@ -10,9 +10,9 @@ func TestGetNumberOfExpensesAndIncomes(t *testing.T) {
 	var expenseRepo ExpenseRepositoryMock
 	var incomeRepo IncomeRepositoryMock
 	cnt := getValueOfExpensesOfOneCategory(2, "Other", expenseRepo)
-	assert.Equal(t, 0.0, cnt, "Error should be nill")
+	assert.Equal(t, 5.0, cnt, "Not working correctly")
 	cntIncomes := getValueOfIncomesOfOneCategory(2, "Salary", incomeRepo)
-	assert.Equal(t, 0.0, cntIncomes, "Error should be nill")
+	assert.Equal(t, 5.0, cntIncomes, "Not working correctly")
 }
 
 func TestBalance(t *testing.T) {

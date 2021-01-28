@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/peterP1998/CostManagementSystem/models"
-	"github.com/peterP1998/CostManagementSystem/repository"
 	"golang.org/x/crypto/bcrypt"
 	"regexp"
 )
@@ -12,7 +11,13 @@ import (
 type UserService struct {
 	ExpenseS       ExpenseService
 	IncomeS        IncomeService
-	UserRepository repository.UserRepositoryInterface
+	UserRepository UserRepositoryInterface
+}
+type UserRepositoryInterface interface {
+	SelectAllUsers() ([]models.User, error)
+	SelectUserByName(username string) (models.User, error)
+	DeleteUserById(id int) error
+	InsertUser(name string, email string, password string, admin bool) error
 }
 
 func (userService UserService) SelectUserByName(username string) (models.User, error) {
@@ -74,14 +79,14 @@ func (userService UserService) RegisterUser(name string, email string, password 
 	}
 	return nil
 }
-func createUserDB(name string, email string, password string, admin bool, userRepository repository.UserRepositoryInterface) error {
+func createUserDB(name string, email string, password string, admin bool, userRepository UserRepositoryInterface) error {
 	err := userRepository.InsertUser(name, email, password, admin)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func createUser(name string, email string, password string, admin bool, userRepository repository.UserRepositoryInterface) error {
+func createUser(name string, email string, password string, admin bool, userRepository UserRepositoryInterface) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err

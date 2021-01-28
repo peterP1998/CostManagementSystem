@@ -62,28 +62,24 @@ func CalculateBalance(incomes []models.Income, expenses []models.Expense) float3
 	}
 	return balance
 }
-func getValueOfExpensesOfOneCategory(id int, category string, expenseRepo repository.ExpenseRepositoryInterface) float64 {
+func getValueOfExpensesOfOneCategory(id int, category string, expenseRepo ExpenseRepositoryInterface) float64 {
 	var cnt float64
 	res, _ := expenseRepo.GetExpensesByCategoryAndUserId(id, category)
-	cnt = 0
+	cnt = 0.0
 	if res != nil {
-		for res.Next() {
-			var expense models.Expense
-			res.Scan(&expense.ID, &expense.Description, &expense.Value, &expense.Category, &expense.Userid)
-			cnt = cnt + float64(expense.Value)
+		for _, v := range res {
+			cnt = cnt + float64(v.Value)
 		}
 	}
 	return cnt
 }
-func getValueOfIncomesOfOneCategory(id int, category string, incomeRepo repository.IncomeRepositoryInterface) float64 {
+func getValueOfIncomesOfOneCategory(id int, category string, incomeRepo IncomeRepositoryInterface) float64 {
 	var cnt float64
 	res, _ := incomeRepo.GetIncomesByCategoryAndUserId(id, category)
-	cnt = 0
+	cnt = 0.0
 	if res != nil {
-		for res.Next() {
-			var income models.Income
-			res.Scan(&income.ID, &income.Description, &income.Value, &income.Category, &income.Userid)
-			cnt = cnt + float64(income.Value)
+		for _, v := range res {
+			cnt = cnt + float64(v.Value)
 		}
 	}
 	return cnt

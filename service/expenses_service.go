@@ -3,12 +3,17 @@ package service
 import (
 	"errors"
 	"github.com/peterP1998/CostManagementSystem/models"
-	"github.com/peterP1998/CostManagementSystem/repository"
 )
 
 type ExpenseService struct {
-	ExpenseRepositoryDB repository.ExpenseRepositoryInterface
+	ExpenseRepositoryDB ExpenseRepositoryInterface
 	IncomeServiceWired  IncomeService
+}
+type ExpenseRepositoryInterface interface {
+	CreateExpense(id int, desc string, value int, category string) error
+	DeleteExpense(userId int) error
+	SelectAllExpensesForUserById(id int) ([]models.Expense, error)
+	GetExpensesByCategoryAndUserId(id int, category string) ([]models.Expense, error)
 }
 
 func (expenseService ExpenseService) SelectAllExpensesForUser(id int) ([]models.Expense, error) {
@@ -16,15 +21,7 @@ func (expenseService ExpenseService) SelectAllExpensesForUser(id int) ([]models.
 	if err != nil {
 		return nil, err
 	}
-	expenses := make([]models.Expense, 0)
-	if res != nil {
-		for res.Next() {
-			var expense models.Expense
-			res.Scan(&expense.ID, &expense.Description, &expense.Value, &expense.Category, &expense.Userid)
-			expenses = append(expenses, expense)
-		}
-	}
-	return expenses, nil
+	return res, nil
 }
 func (expenseService ExpenseService) CreateExpense(id int, desc string, value int, category string) error {
 	err := expenseService.BalanceForNewExpense(id, value)

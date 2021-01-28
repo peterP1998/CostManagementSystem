@@ -4,14 +4,6 @@ import (
 	"github.com/peterP1998/CostManagementSystem/models"
 )
 
-type GroupRepositoryInterface interface {
-	SelectGroupById(id int) (models.Group, error)
-	SelectGroupByName(name string) (models.Group, error)
-	DeleteGroup(id int) error
-	CreateGroup(targetmoney int, groupname string) error
-	UpdateGroupMoney(id int, value int) error
-	SelectAllGroups() ([]models.Group, error)
-}
 type GroupRepository struct {
 }
 

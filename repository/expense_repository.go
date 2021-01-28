@@ -1,25 +1,26 @@
 package repository
 
 import (
-	"database/sql"
 	"github.com/peterP1998/CostManagementSystem/models"
 )
 
-type ExpenseRepositoryInterface interface {
-	CreateExpense(id int, desc string, value int, category string) error
-	DeleteExpense(userId int) error
-	SelectAllExpensesForUserById(id int) (*sql.Rows, error)
-	GetExpensesByCategoryAndUserId(id int, category string) (*sql.Rows, error)
-}
 type ExpenseRepository struct {
 }
 
-func (er ExpenseRepository) SelectAllExpensesForUserById(id int) (*sql.Rows, error) {
+func (er ExpenseRepository) SelectAllExpensesForUserById(id int) ([]models.Expense, error) {
 	res, err := models.DB.Query("select * from Expense where userid=?;", id)
 	if err != nil {
 		return nil, err
 	}
-	return res, nil
+	var expenses []models.Expense
+	if res != nil {
+		for res.Next() {
+			var expense models.Expense
+			res.Scan(&expense.ID, &expense.Description, &expense.Value, &expense.Category, &expense.Userid)
+			expenses = append(expenses, expense)
+		}
+	}
+	return expenses, nil
 }
 func (er ExpenseRepository) DeleteExpense(userId int) error {
 	_, err := models.DB.Query("delete from Expense where userid=?;", userId)
@@ -35,10 +36,18 @@ func (er ExpenseRepository) CreateExpense(id int, desc string, value int, catego
 	}
 	return nil
 }
-func (er ExpenseRepository) GetExpensesByCategoryAndUserId(id int, category string) (*sql.Rows, error) {
+func (er ExpenseRepository) GetExpensesByCategoryAndUserId(id int, category string) ([]models.Expense, error) {
 	res, err := models.DB.Query(`select * from Expense where userid=? and category=?;`, id, category)
 	if err != nil {
 		return nil, err
 	}
-	return res, nil
+	var expenses []models.Expense
+	if res != nil {
+		for res.Next() {
+			var expense models.Expense
+			res.Scan(&expense.ID, &expense.Description, &expense.Value, &expense.Category, &expense.Userid)
+			expenses = append(expenses, expense)
+		}
+	}
+	return expenses, nil
 }

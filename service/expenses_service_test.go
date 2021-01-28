@@ -1,7 +1,6 @@
 package service
 
 import (
-	"database/sql"
 	"errors"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/peterP1998/CostManagementSystem/models"
@@ -14,11 +13,14 @@ type ExpenseRepositoryMock struct {
 
 var arrExpenses []models.Expense
 
-func (er ExpenseRepositoryMock) SelectAllExpensesForUserById(id int) (*sql.Rows, error) {
+func (er ExpenseRepositoryMock) SelectAllExpensesForUserById(id int) ([]models.Expense, error) {
 	if id == 2 {
-		return nil, errors.New("No data for this user")
+		var expenses []models.Expense
+		expenses = append(expenses, models.Expense{ID: 1, Description: "test1", Value: 2.0, Category: "Other", Userid: 2})
+		expenses = append(expenses, models.Expense{ID: 2, Description: "test2", Value: 3.0, Category: "Other", Userid: 2})
+		return expenses, nil
 	}
-	return nil, nil
+	return nil, errors.New("No data for this user")
 }
 func (er ExpenseRepositoryMock) DeleteExpense(userId int) error {
 	if userId == 2 {
@@ -34,16 +36,23 @@ func (er ExpenseRepositoryMock) CreateExpense(id int, desc string, value int, ca
 	}
 	return nil
 }
-func (er ExpenseRepositoryMock) GetExpensesByCategoryAndUserId(id int, category string) (*sql.Rows, error) {
+func (er ExpenseRepositoryMock) GetExpensesByCategoryAndUserId(id int, category string) ([]models.Expense, error) {
+	if id == 2 && category == "Other" {
+		var expenses []models.Expense
+		expenses = append(expenses, models.Expense{ID: 1, Description: "test1", Value: 2.0, Category: "Other", Userid: 2})
+		expenses = append(expenses, models.Expense{ID: 2, Description: "test2", Value: 3.0, Category: "Other", Userid: 2})
+		return expenses, nil
+	}
 	return nil, nil
 }
 
 func TestSelectAllExpensesForUser(t *testing.T) {
 	var expenseService ExpenseService = ExpenseService{ExpenseRepositoryDB: ExpenseRepositoryMock{}}
-	_, err := expenseService.SelectAllExpensesForUser(2)
-	assert.NotEqual(t, nil, err, "Select not working correctly")
-	_, err = expenseService.SelectAllExpensesForUser(3)
+	res, err := expenseService.SelectAllExpensesForUser(2)
 	assert.Equal(t, nil, err, "Select not working correctly")
+	assert.Equal(t, 2, len(res), "Select not working correctly")
+	_, err = expenseService.SelectAllExpensesForUser(3)
+	assert.NotEqual(t, nil, err, "Select not working correctly")
 }
 func TestDeleteExpense(t *testing.T) {
 	var expenseService ExpenseService = ExpenseService{ExpenseRepositoryDB: ExpenseRepositoryMock{}}
@@ -58,6 +67,6 @@ func TestDeleteExpense(t *testing.T) {
 func TestCreateExpense(t *testing.T) {
 	var expenseService ExpenseService = ExpenseService{ExpenseRepositoryDB: ExpenseRepositoryMock{}, IncomeServiceWired: IncomeService{IncomeRepositoryDB: IncomeRepositoryMock{}}}
 	err := expenseService.CreateExpense(2, "", 2.0, "category")
-	assert.Equal(t, "No data for this user", err.Error(), "Delete not working correctly")
+	assert.Equal(t, "Not enough money", err.Error(), "Delete not working correctly")
 	assert.NotEqual(t, nil, arrExpenses, "Create not working correctly")
 }

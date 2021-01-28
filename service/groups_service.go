@@ -2,14 +2,21 @@ package service
 
 import (
 	"github.com/peterP1998/CostManagementSystem/models"
-	"github.com/peterP1998/CostManagementSystem/repository"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
 type GroupService struct {
-	GroupRepositoryDB repository.GroupRepositoryInterface
+	GroupRepositoryDB GroupRepositoryInterface
+}
+type GroupRepositoryInterface interface {
+	SelectGroupById(id int) (models.Group, error)
+	SelectGroupByName(name string) (models.Group, error)
+	DeleteGroup(id int) error
+	CreateGroup(targetmoney int, groupname string) error
+	UpdateGroupMoney(id int, value int) error
+	SelectAllGroups() ([]models.Group, error)
 }
 
 func (groupService GroupService) SelectGroupById(groupId int) (models.Group, error) {

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"database/sql"
 	"errors"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/peterP1998/CostManagementSystem/models"
@@ -14,11 +13,14 @@ type IncomeRepositoryMock struct {
 
 var arrIncomes []models.Income
 
-func (er IncomeRepositoryMock) SelectAllIncomesForUserById(id int) (*sql.Rows, error) {
+func (er IncomeRepositoryMock) SelectAllIncomesForUserById(id int) ([]models.Income, error) {
 	if id == 2 {
-		return nil, errors.New("No data for this user")
+		var incomes []models.Income
+		incomes = append(arrIncomes, models.Income{ID: 1, Description: "test1", Value: 3.0, Category: "Other", Userid: 2})
+		incomes = append(arrIncomes, models.Income{ID: 2, Description: "test2", Value: 5.0, Category: "Other", Userid: 2})
+		return incomes, nil
 	}
-	return nil, nil
+	return nil, errors.New("No data for this user")
 }
 func (er IncomeRepositoryMock) DeleteIncome(userId int) error {
 	if userId == 2 {
@@ -34,18 +36,22 @@ func (er IncomeRepositoryMock) CreateIncome(id int, desc string, value int, cate
 	}
 	return nil
 }
-func (er IncomeRepositoryMock) GetIncomesByCategoryAndUserId(id int, category string) (*sql.Rows, error) {
+func (er IncomeRepositoryMock) GetIncomesByCategoryAndUserId(id int, category string) ([]models.Income, error) {
 	if id == 2 {
-		return nil, errors.New("No data for this user")
+		var incomes []models.Income
+		incomes = append(arrIncomes, models.Income{ID: 1, Description: "test1", Value: 3.0, Category: "Other", Userid: 2})
+		incomes = append(arrIncomes, models.Income{ID: 2, Description: "test2", Value: 5.0, Category: "Other", Userid: 2})
+		return incomes, nil
 	}
-	return nil, nil
+	return nil, errors.New("No data for this user")
 }
 func TestSelectAllIncomesForUser(t *testing.T) {
 	var incomeService IncomeService = IncomeService{IncomeRepositoryDB: IncomeRepositoryMock{}}
-	_, err := incomeService.SelectAllIncomesForUser(2)
-	assert.NotEqual(t, nil, err, "Select not working correctly")
-	_, err = incomeService.SelectAllIncomesForUser(3)
+	res, err := incomeService.SelectAllIncomesForUser(2)
+	assert.Equal(t, 1, len(res), "Select not working correctly")
 	assert.Equal(t, nil, err, "Select not working correctly")
+	_, err = incomeService.SelectAllIncomesForUser(3)
+	assert.NotEqual(t, nil, err, "Select not working correctly")
 }
 func TestDeleteIncome(t *testing.T) {
 	var incomeService IncomeService = IncomeService{IncomeRepositoryDB: IncomeRepositoryMock{}}

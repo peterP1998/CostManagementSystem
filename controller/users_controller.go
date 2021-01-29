@@ -46,46 +46,42 @@ func (userController UserController) DeleteUser(w http.ResponseWriter, r *http.R
 	users, err := userController.UserServiceWired.SelectAllUsersWithoutAdmins(r.FormValue("name"))
 	errresp := map[string]interface{}{"users": users, "messg": "Something went wrong!Try again!"}
 	okresp := map[string]interface{}{"users": users, "messg": "User deleted succesfully!"}
+	deleteUserHtml:="static/templates/user/deleteuser.html"
 	if err != nil {
-		views.CreateView(w, "static/templates/user/deleteuser.html", errresp)
-	}
-	token := userController.AccountServiceWired.CheckAuthBeforeOperate(r, w)
-	_, admin, err := userController.AccountServiceWired.ParseToken(token.Value)
-	if admin == false || err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
+		views.CreateView(w, deleteUserHtml, errresp)
 	}
 	user, err := userController.UserServiceWired.SelectUserByName(r.FormValue("name"))
 	if err != nil {
-		err = views.CreateView(w, "static/templates/user/deleteuser.html", errresp)
+		err = views.CreateView(w, deleteUserHtml, errresp)
 		utils.InternalServerError(err, w)
 		return
 	}
 	err = userController.UserServiceWired.DeleteUserById(user.ID)
 	if err != nil {
-		err = views.CreateView(w, "static/templates/user/deleteuser.html", errresp)
+		err = views.CreateView(w, deleteUserHtml, errresp)
 		utils.InternalServerError(err, w)
 		return
 	}
-	views.CreateView(w, "static/templates/user/deleteuser.html", okresp)
+	views.CreateView(w, deleteUserHtml, okresp)
 }
 func (userController UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	errresp := map[string]interface{}{"messg": "Something went wrong!Try again!"}
 	ok := map[string]interface{}{"messg": "User created succesfully"}
+	createUserHtml:="static/templates/user/createuser.html"
 	valid, resp := userController.UserServiceWired.CheckInputsBeforeCreating(r.FormValue("username"), r.FormValue("email"), r.FormValue("password"))
 	if !valid {
-		err := views.CreateView(w, "static/templates/user/createuser.html", map[string]interface{}{"messg": resp})
+		err := views.CreateView(w, createUserHtml, map[string]interface{}{"messg": resp})
 		utils.InternalServerError(err, w)
 		return
 	}
 	err := userController.UserServiceWired.CreateUser(r.FormValue("username"), r.FormValue("email"), r.FormValue("password"), r.FormValue("admin"))
 	if err != nil {
-		err = views.CreateView(w, "static/templates/user/createuser.html", errresp)
+		err = views.CreateView(w, createUserHtml, errresp)
 		utils.InternalServerError(err, w)
 		return
 	}
-	err = views.CreateView(w, "static/templates/user/createuser.html", ok)
+	err = views.CreateView(w, createUserHtml, ok)
 	utils.InternalServerError(err, w)
 }
 func (userController UserController) RegisterUser(w http.ResponseWriter, r *http.Request) {

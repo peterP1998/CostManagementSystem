@@ -33,28 +33,29 @@ func (expenseController ExpenseController) AddExpenseForUser(w http.ResponseWrit
 	r.ParseForm()
 	errresp := map[string]interface{}{"messg": "Something went wrong!Try again!"}
 	okresp := map[string]interface{}{"messg": "Expense Created!"}
+	expenseHtml:= "static/templates/expense/expenses.html"
 	token := expenseController.Accountservice.CheckAuthBeforeOperate(r, w)
 	username, _, err := expenseController.Accountservice.ParseToken(token.Value)
 	if err != nil {
-		views.CreateView(w, "static/templates/expense/expenses.html", errresp)
+		views.CreateView(w, expenseHtml, errresp)
 	}
 	user, err := expenseController.Userservice.SelectUserByName(username)
 	if err != nil {
-		views.CreateView(w, "static/templates/expense/expenses.html", errresp)
+		views.CreateView(w,expenseHtml, errresp)
 	}
 	i, err := strconv.Atoi(r.FormValue("value"))
 	if err != nil {
-		views.CreateView(w, "static/templates/expense/expenses.html", errresp)
+		views.CreateView(w,expenseHtml, errresp)
 	}
 	err = expenseController.Expenseservice.CreateExpense(user.ID, r.FormValue("description"), i, r.FormValue("category"))
 	if err != nil {
 		if err.Error() == "Not enough money" {
-			views.CreateView(w, "static/templates/expense/expenses.html", map[string]interface{}{"messg": "Not enough money"})
+			views.CreateView(w, expenseHtml, map[string]interface{}{"messg": "Not enough money"})
 			return
 		} else {
-			views.CreateView(w, "static/templates/expense/expenses.html", errresp)
+			views.CreateView(w,expenseHtml, errresp)
 			return
 		}
 	}
-	views.CreateView(w, "static/templates/expense/expenses.html", okresp)
+	views.CreateView(w,expenseHtml, okresp)
 }

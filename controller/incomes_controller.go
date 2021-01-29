@@ -35,20 +35,21 @@ func (incomeController IncomeController) AddIncomeForUser(w http.ResponseWriter,
 	username, _, err := incomeController.Accountservice.ParseToken(token.Value)
 	errresp := map[string]interface{}{"messg": "Something went wrong!Try again!"}
 	okresp := map[string]interface{}{"messg": "Income Created!"}
+	incomesHtml:="static/templates/income/income.html"
 	if err != nil {
-		views.CreateView(w, "static/templates/income/income.html", errresp)
+		views.CreateView(w,incomesHtml, errresp)
 	}
 	user, err := incomeController.Userservice.SelectUserByName(username)
 	if err != nil {
-		views.CreateView(w, "static/templates/income/income.html", errresp)
+		views.CreateView(w,incomesHtml, errresp)
 	}
 	i, err := strconv.Atoi(r.FormValue("value"))
 	if err != nil {
-		views.CreateView(w, "static/templates/income/income.html", errresp)
+		views.CreateView(w,incomesHtml, errresp)
 	}
 	err = incomeController.Incomeservice.CreateIncome(user.ID, r.FormValue("description"), i, r.FormValue("category"))
 	if err != nil {
-		views.CreateView(w, "static/templates/income/income.html", errresp)
+		views.CreateView(w, incomesHtml, errresp)
 	}
-	views.CreateView(w, "static/templates/income/income.html", okresp)
+	views.CreateView(w,incomesHtml, okresp)
 }
